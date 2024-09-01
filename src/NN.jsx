@@ -5,17 +5,20 @@ import {
   Background,
   useNodesState,
   useEdgesState,
+  addEdge,
   ReactFlowProvider,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 
 import Node from "./components/Node.jsx";
 import DragNode from "./components/DragNode.jsx";
+import GraphNode from "./components/GraphNode.jsx";
 import Edge from "./components/Edge.jsx";
 
 const nodeTypes = {
   node: Node,
   dragNode: DragNode,
+  graphNode: GraphNode,
 };
 
 const edgeTypes = {
@@ -26,10 +29,11 @@ const NN = ({ nnData, lastInputData }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
+  // initialize nodes and edges
   useEffect(() => {
-    if (nnData.length > 0) {
+    if (nnData.layers) {
       const buildGraph = (nnData, lastInputData) => {
-        let nodes = []; // 改：不要每次都完整生成nodes和edges，而是只更新需要更新的部分，参考color picker
+        let nodes = [];
         let edges = [];
 
         // test nodes
@@ -42,7 +46,7 @@ const NN = ({ nnData, lastInputData }) => {
             x: 100,
             y: 100,
           },
-          type: "dragNode",
+          type: "graphNode",
         });
 
         // input layer nodes
@@ -65,7 +69,7 @@ const NN = ({ nnData, lastInputData }) => {
         }
 
         // hidden/output layer nodes
-        nnData.forEach((layer, layerIndex) => {
+        nnData.layers.forEach((layer, layerIndex) => {
           layer.forEach((neuron, neuronIndex) => {
             const nodeId = `L${layerIndex}N${neuronIndex}`;
             nodes.push({
@@ -104,7 +108,7 @@ const NN = ({ nnData, lastInputData }) => {
               });
             } else {
               // hidden/output layer connection
-              const prevLayer = nnData[layerIndex - 1];
+              const prevLayer = nnData.layers[layerIndex - 1];
               prevLayer.forEach((prevNeuron, prevNeuronIndex) => {
                 const prevNodeId = `L${layerIndex - 1}N${prevNeuronIndex}`;
                 const currentNodeId = `L${layerIndex}N${neuronIndex}`;
@@ -132,6 +136,13 @@ const NN = ({ nnData, lastInputData }) => {
       buildGraph(nnData, lastInputData);
     }
   }, [nnData, lastInputData]);
+
+  // useEffect // nnData is reset every time the Train button is pressed
+
+  const onConnect = useCallback(
+    (params) => setEdges((eds) => addEdge(params, eds)),
+    []
+  );
 
   const onEdgeMouseEnter = (event, edge) => {
     const edgeId = edge.id;
@@ -186,6 +197,7 @@ const NN = ({ nnData, lastInputData }) => {
           edgeTypes={edgeTypes}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
           onEdgeMouseEnter={onEdgeMouseEnter}
           onEdgeMouseLeave={onEdgeMouseLeave}
           nodesDraggable={true}

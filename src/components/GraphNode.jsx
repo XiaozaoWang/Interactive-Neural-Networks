@@ -5,48 +5,100 @@ import * as d3 from "d3";
 
 const GraphNode = ({ data }) => {
   const svgRef = useRef(null);
-  const [inVal, setInVal] = useState(0);
+
+  const nodeWidth = 200;
+  const nodeHeight = 200;
+  const margin = { top: 20, right: 10, bottom: 20, left: 20 };
+  const width = nodeWidth - margin.left - margin.right; // graph width
+  const height = nodeHeight - margin.top - margin.bottom;
+
+  const inVal = 0;
   const [outVal, setOutVal] = useState(0);
 
   useEffect(() => {
-    const svg = d3.select(svgRef.current);
+    const svg = d3.select(svgRef.current).attr("cursor", "pointer");
     svg.selectAll("*").remove();
-    const rect = svg
-      .append("rect")
-      .attr("x", 0)
-      .attr("y", 100 - rectHeight)
-      .attr("width", rectWidth)
-      .attr("height", rectHeight)
-      .attr("fill", "lightblue");
 
-    // Add a draggable line on top of the rectangle
-    const dragLine = svg
-      .append("rect")
-      .attr("x", 0)
-      .attr("y", 100 - rectHeight - 5)
-      .attr("width", rectWidth)
-      .attr("height", 5)
-      .attr("fill", "darkblue")
-      .attr("cursor", "ns-resize")
-      .call(d3.drag().on("drag", dragged));
+    const graph = svg
+      .attr("width", nodeWidth)
+      .attr("height", nodeHeight)
+      .append("g")
+      .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    function dragged(event) {
-      const newY = event.y;
-      const newHeight = 100 - newY;
-      //   console.log("newHeight:", newHeight);
+    // Create scales for the x and y axes
+    const xScale = d3.scaleLinear().domain([-6, 6]).range([0, width]);
+    const yScale = d3.scaleLinear().domain([0, 1]).range([height, 0]);
 
-      if (newHeight > 0) {
-        // rect.attr("y", newY).attr("height", 100 - newHeight);
-        // dragLine.attr("y", newY - 5);
-        setRectHeight(newHeight);
-        data.onHeightChange(newHeight);
-      }
+    // Create the x and y axes
+    const xAxis = d3.axisBottom(xScale).ticks(5).tickSize(3);
+    const yAxis = d3.axisLeft(yScale).ticks(5).tickSize(3).tickPadding(2);
+
+    // Append the x axis to the SVG
+    graph.append("g").attr("transform", `translate(0,${height})`).call(xAxis);
+
+    // Append the y axis to the SVG
+    // svg.append("g").call(yAxis);
+    graph.append("g").call(yAxis);
+
+    // Define the sigmoid function
+    function sigmoid(x) {
+      return 1 / (1 + Math.exp(-x));
     }
-  }, [rectHeight]);
+
+    // Generate data points for the sigmoid function
+    const data = d3.range(-6, 6, 0.1).map(function (x) {
+      return { x: x, y: sigmoid(x) };
+    });
+
+    const line = d3
+      .line()
+      .x((d) => xScale(d.x))
+      .y((d) => yScale(d.y));
+
+    graph
+      .append("path")
+      .datum(data)
+      .attr("fill", "none")
+      .attr("stroke", "steelblue")
+      .attr("stroke-width", 2)
+      .attr("d", line);
+
+    const circle = graph
+      .append("circle")
+      .attr("cx", xScale(inVal))
+      .attr("cy", yScale(sigmoid(inVal)))
+      .attr("r", 5)
+      .attr("fill", "red")
+
+      .call(drag());
+
+    function drag() {
+      function dragstarted(event, d) {
+        d3.select(this).attr("stroke", "black");
+      }
+
+      function dragged(event, d) {
+        const xValue = xScale.invert(event.x);
+        d3.select(this)
+          .attr("cx", event.x)
+          .attr("cy", yScale(sigmoid(xValue)));
+      }
+
+      function dragended(event, d) {
+        d3.select(this).attr("stroke", null);
+      }
+
+      return d3
+        .drag()
+        .on("start", dragstarted)
+        .on("drag", dragged)
+        .on("end", dragended);
+    }
+  }, []);
 
   return (
     <div
-      className={tw`w-[100px] h-[100px] p-0 m-0 bg-gray-100 border border-gray-300 rounded-md`}
+      className={tw`w-[${nodeWidth}px] h-[${nodeHeight}px] p-0 m-0 bg-gray-100 border border-gray-300 rounded-md`}
     >
       <Handle
         type="target"

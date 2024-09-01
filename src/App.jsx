@@ -19,7 +19,7 @@ const App = () => {
   const [nnData, setNnData] = useState([]); // store the w, b, grad, output of non-input neurons layer by layer
   const [step, setStep] = useState(0.2);
 
-  // Initialize the
+  // Initialize nnData
   useEffect(() => {
     setNnData(updateNodeData());
   }, []);
@@ -36,7 +36,6 @@ const App = () => {
     let loss = mean_squared_error(targets, ypred); // a Value instance
     setLoss(loss);
 
-    setNnData(updateNodeData());
     setLastInputData(inputs[inputs.length - 1]);
   };
 
@@ -51,7 +50,7 @@ const App = () => {
       p.data += -1 * p.grad * step;
     }
 
-    setNnData(updateNodeData());
+    setNnData(updateNodeData()); // [!] every time nnData is reset using "setNnData", the child components that takes in nnData will re-render
   };
 
   const handleStepChange = (e) => {
@@ -61,7 +60,7 @@ const App = () => {
   };
 
   function updateNodeData() {
-    const updatedData = mlp.layers.map((layer) =>
+    const layers = mlp.layers.map((layer) =>
       layer.neurons.map((neuron) => ({
         weights: neuron.w.map((w) => w.data),
         bias: neuron.b.data,
@@ -69,6 +68,7 @@ const App = () => {
         grad: neuron.b.grad,
       }))
     );
+    const updatedData = { size: mlp.sz, layers: layers };
     console.log("updatedData: ", updatedData);
     return updatedData;
   }
