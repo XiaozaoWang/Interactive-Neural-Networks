@@ -5,6 +5,8 @@ import {
   Background,
   useNodesState,
   useEdgesState,
+  applyNodeChanges,
+  applyEdgeChanges,
   addEdge,
   ReactFlowProvider,
 } from "@xyflow/react";
@@ -29,7 +31,25 @@ const NN = ({ nnData, lastInputData }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
-  // initialize nodes and edges
+  const handleNodesChange = useCallback(
+    (changes) => {
+      setNodes((nds) => {
+        const updatedNodes = applyNodeChanges(changes, nds);
+
+        // Print the current position of all the nodes
+        updatedNodes.forEach((node) => {
+          console.log(
+            `Node ${node.id} is at position x: ${node.position.x}, y: ${node.position.y}`
+          );
+        });
+
+        return updatedNodes;
+      });
+    },
+    [setNodes]
+  );
+
+  // paint nodes and edges
   useEffect(() => {
     if (nnData.layers) {
       const buildGraph = (nnData, lastInputData) => {
@@ -195,7 +215,7 @@ const NN = ({ nnData, lastInputData }) => {
           edges={edges}
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
-          onNodesChange={onNodesChange}
+          onNodesChange={handleNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
           onEdgeMouseEnter={onEdgeMouseEnter}
