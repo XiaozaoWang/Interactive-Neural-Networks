@@ -57,17 +57,17 @@ const NN = ({ nnData, lastInputData }) => {
         let edges = [];
 
         // test nodes
-        nodes.push({
-          id: "test",
-          data: {
-            onHeightChange: onHeightChange,
-          },
-          position: {
-            x: 100,
-            y: 100,
-          },
-          type: "graphNode",
-        });
+        // nodes.push({
+        //   id: "test",
+        //   data: {
+        //     onHeightChange: onHeightChange,
+        //   },
+        //   position: {
+        //     x: 100,
+        //     y: 100,
+        //   },
+        //   type: "graphNode",
+        // });
 
         // input layer nodes
         if (lastInputData) {

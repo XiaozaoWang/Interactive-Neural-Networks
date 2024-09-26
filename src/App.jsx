@@ -11,7 +11,14 @@ const App = () => {
     [0.5, 1.0, 1.0],
     [1.0, 1.0, -1.0],
   ]);
+  // const [inputs, setInputs] = useState([
+  //   [2.0, 3.0],
+  //   // [3.0, -1.0],
+  //   // [0.5, 1.0],
+  //   // [1.0, 1.0],
+  // ]);
   const [targets, setTargets] = useState([1.0, -1.0, -1.0, 1.0]);
+  // const [targets, setTargets] = useState([1.0]);
   const [predictions, setPredictions] = useState([]); // plain numbers
   const [loss, setLoss] = useState(new Value(0)); // a Value instance that can propagate back the network
   // extracted data that will be passed to React Flow UI
@@ -94,7 +101,9 @@ const App = () => {
         <option value="0.2">0.2</option>
         <option value="0.1">0.1</option>
         <option value="0.05">0.05</option>
-        <option value="0.02">0.02</option>
+        <option value="0.02" selected>
+          0.02
+        </option>
       </select>
 
       <div className={tw`flex mt-8 space-x-8`}>

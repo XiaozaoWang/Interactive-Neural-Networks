@@ -183,10 +183,25 @@ class Neuron {
     }
     this.b = new Value(Math.random() * 2 - 1, { label: "b" }); // bias
     this.out = new Value(0.0); // output of the neuron
+    console.log("neuron constructed: ", this);
   }
 
   forward(x) {
     // x .. array of inputs
+    if (!Array.isArray(x)) {
+      console.log("x: ", x);
+      console.log("turning x into an array");
+      x = [x];
+    }
+    console.log(
+      "neuron forward: ",
+      "x: ",
+      x,
+      "x.length",
+      x.length,
+      "w.length",
+      this.w.length
+    );
     if (x.length !== this.w.length) {
       throw "forward() expected " + this.w.length + ", " + x.length + " given";
     }
@@ -198,6 +213,7 @@ class Neuron {
     act = act.add(this.b);
     let out = act.tanh();
     this.out = out;
+    console.log("neuron out: ", out);
     return out;
   }
 
@@ -240,6 +256,7 @@ class Layer {
   constructor(nin, nout, layerIndex) {
     this.nin = nin;
     this.nout = nout;
+    console.log("layer", layerIndex, "nin", nin, "nout", nout);
     this.neurons = []; // array of neurons
     for (let i = 0; i < nout; i++) {
       this.neurons[i] = new Neuron(nin, layerIndex, i);
@@ -349,6 +366,8 @@ class MLP {
 function mean_squared_error(ygt, yout) {
   // ygt .. expected values (ground truth)
   // yout .. predicted values (Value instances)
+  console.log("ygt: ", ygt);
+  console.log("yout: ", yout);
   if (ygt.length !== yout.length) {
     throw "Lengths of arguments don't match";
   }
