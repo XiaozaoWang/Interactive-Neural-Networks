@@ -4,6 +4,7 @@ import App from "./App.jsx";
 // import App2 from "./test/App2.jsx";
 // import Svg from "./test/Svg.jsx";
 // import GeoGebraApp from "./test/Geo.jsx";
+import Article from "./test/Article.jsx";
 import Test from "./test/Test.jsx";
 
 createRoot(document.getElementById("root")).render(
@@ -12,5 +13,6 @@ createRoot(document.getElementById("root")).render(
     {/* <Svg /> */}
     {/* <GeoGebraApp /> */}
     {/* <Test /> */}
+    {/* <Article /> */}
   </StrictMode>
 );

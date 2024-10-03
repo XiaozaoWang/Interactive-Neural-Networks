@@ -77,10 +77,10 @@ const NN = ({ nnData, lastInputData }) => {
               id: nodeId,
               data: {
                 label: nodeId,
-                Input: input.toFixed(2),
+                input: input.toFixed(2),
               },
               position: {
-                x: 0,
+                x: 100,
                 y: 100 + inputIndex * 150,
               },
               type: "node",
@@ -96,12 +96,12 @@ const NN = ({ nnData, lastInputData }) => {
               id: nodeId,
               data: {
                 label: nodeId,
-                Bias: neuron.bias.toFixed(2),
-                Output: neuron.output.toFixed(2),
-                Grad: neuron.grad.toFixed(2),
+                bias: neuron.bias.toFixed(2),
+                output: neuron.output.toFixed(2),
+                grad: neuron.grad.toFixed(2),
               },
               position: {
-                x: (layerIndex + 1) * 350,
+                x: 100 + (layerIndex + 1) * 350,
                 y: 100 + neuronIndex * 150,
               },
               type: "node",

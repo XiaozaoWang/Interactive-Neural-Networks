@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import NN from "./NN";
+import InOut from "./flows/InOut";
+import Test from "./test/Test";
 import { mean_squared_error, MLP, Value } from "./micrograd";
 import { tw } from "twind";
 
@@ -83,8 +85,13 @@ const App = () => {
   return (
     <div className={tw`p-8 bg-gray-100 min-h-screen`}>
       <h1 className={tw`text-3xl font-bold mb-4 text-center text-gray-800`}>
-        Neural Network Visualizer
+        Neural Network Visualizer (Work in Progress)
       </h1>
+      <p className={tw`text-sm font-bold mb-4 text-center text-gray-800`}>
+        Instruction for current version: Click "Feed" to pass the input data,
+        and click "Train" multiple times to train the network. After several
+        training, the Loss value will be reduced greatly.
+      </p>
       <button
         className={tw`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none m-2`}
         onClick={handleFeed}
@@ -138,6 +145,8 @@ const App = () => {
       </div>
 
       <NN nnData={nnData} lastInputData={lastInputData} />
+      {/* <InOut /> */}
+      {/* <Test /> */}
     </div>
   );
 };
