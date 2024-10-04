@@ -3,6 +3,7 @@ import {
   ReactFlow,
   Controls,
   Background,
+  BackgroundVariant,
   useNodesState,
   useEdgesState,
   applyNodeChanges,
@@ -209,7 +210,7 @@ const NN = ({ nnData, lastInputData }) => {
 
   return (
     <ReactFlowProvider>
-      <div style={{ height: "100vh" }}>
+      <div style={{ height: "800px", width: "80%" }}>
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -222,9 +223,12 @@ const NN = ({ nnData, lastInputData }) => {
           onEdgeMouseLeave={onEdgeMouseLeave}
           nodesDraggable={true}
           nodesConnectable={false}
+          panOnDrag={false}
+          zoomOnScroll={false}
         >
-          <Controls />
-          <Background />
+          {/* <Controls /> */}
+          <Background bgColor="#fafafa" variant={BackgroundVariant.Dots} />
+          {/* <Background /> */}
         </ReactFlow>
       </div>
     </ReactFlowProvider>

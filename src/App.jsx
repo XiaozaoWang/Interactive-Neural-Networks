@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import NN from "./NN";
 import InOut from "./flows/InOut";
 import Test from "./test/Test";
+import Article from "./test/Article";
 import { mean_squared_error, MLP, Value } from "./micrograd";
 import { tw } from "twind";
 
@@ -108,9 +109,7 @@ const App = () => {
         <option value="0.2">0.2</option>
         <option value="0.1">0.1</option>
         <option value="0.05">0.05</option>
-        <option value="0.02" selected>
-          0.02
-        </option>
+        <option defaultValue="0.02">0.02</option>
       </select>
 
       <div className={tw`flex mt-8 space-x-8`}>
@@ -145,7 +144,9 @@ const App = () => {
       </div>
 
       <NN nnData={nnData} lastInputData={lastInputData} />
-      {/* <InOut /> */}
+      <InOut />
+      <Article />
+
       {/* <Test /> */}
     </div>
   );
