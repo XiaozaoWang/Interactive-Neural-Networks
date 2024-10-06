@@ -179,6 +179,7 @@ const InOut = ({}) => {
           onConnect={onConnect}
           panOnDrag={false}
           zoomOnScroll={false}
+          zoomOnDoubleClick={false}
         >
           {/* <Controls /> */}
           <Background

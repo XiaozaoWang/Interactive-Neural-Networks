@@ -225,6 +225,7 @@ const NN = ({ nnData, lastInputData }) => {
           nodesConnectable={false}
           panOnDrag={false}
           zoomOnScroll={false}
+          zoomOnDoubleClick={false}
         >
           {/* <Controls /> */}
           <Background bgColor="#fafafa" variant={BackgroundVariant.Dots} />
