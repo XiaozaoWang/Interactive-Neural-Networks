@@ -36,7 +36,6 @@ const DragNode = ({ id, data, isConnectable }) => {
 
   // Effect to render the SVG graphic initially and after dragging
   useEffect(() => {
-    // console.log("current height:", height);
     const svg = d3.select(svgRef.current);
 
     // Create the rectangle if it doesn't exist yet
