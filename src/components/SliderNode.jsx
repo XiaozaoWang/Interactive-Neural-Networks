@@ -8,10 +8,10 @@ const SliderNode = ({ id, data, isConnectable }) => {
   const [nodeValue, setNodeValue] = useState(data.value);
   const nodeWidth = 60;
   const nodeHeight = 150;
-  const sliderWidth = 8;
+  const sliderWidth = 15;
   const sliderHeight = 100;
   const handleWidth = 20;
-  const handleHeight = 10;
+  const handleHeight = 6;
   const marginVertical = (nodeHeight - sliderHeight) / 2;
   const marginHorizontal = (nodeWidth - sliderWidth) / 2;
   const scale = d3.scaleLinear().domain([0, 1]).range([0, 100]);
@@ -19,37 +19,34 @@ const SliderNode = ({ id, data, isConnectable }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [selectedData, setSelectedData] = useState(data.selectedData);
 
-  // Do the following in every render
-  // useEffect(() => {
-  //   setSelectedData(data.selectedData);
-  // }, [data.selectedData]);
-
-  // Effect to update the height smoothly when data.value changes
+  // 1. Update the graph when data.value changes
   useEffect(() => {
     const svg = d3.select(svgRef.current);
-    console.log("data.value:", data.value);
-    // Transition the draggable handle to the new y position
+    // 1. Transition the draggable handle to the new y position
     svg
       .select("rect.handle")
       .transition()
       .duration(isDragging ? 0 : 200)
-      // .attr("y", nodeHeight - scale(data.value) - 5);
       .attr(
         "y",
         sliderHeight - scale(data.value) + marginVertical - handleHeight / 2
       );
 
-    setHeight(scale(data.value)); // Update height after transition completes
+    // 2. transition the value text to the new y position
+    //    and update the text to the new value
+    svg
+      .select("text.value")
+      .transition()
+      .duration(isDragging ? 0 : 200)
+      .attr("y", sliderHeight - scale(data.value) + marginVertical)
+      .text(data.value.toFixed(1));
   }, [data.value]); // Depend only on data.value (passed from parent)
 
-  // Effect to render the SVG graphic initially and after dragging
+  // 2. Render the SVG graphic initially and define dragging functiona
   useEffect(() => {
-    // console.log("heyyyyyyyyyyyyyyy");
-    // console.log("data.selectedData0:", data.selectedData);
-
     const svg = d3.select(svgRef.current);
 
-    // Create the rectangle if it doesn't exist yet
+    // Slider
     let rect = svg.select("rect.slider");
     if (rect.empty()) {
       rect = svg
@@ -59,11 +56,12 @@ const SliderNode = ({ id, data, isConnectable }) => {
         .attr("y", marginVertical) // Initial height
         .attr("width", sliderWidth)
         .attr("height", sliderHeight)
-        .attr("fill", "#ddd")
+        .attr("stroke", "#aaa")
+        .attr("fill", "none")
         .attr("rx", 2); // Rounded corners
     }
 
-    // Create the draggable handle
+    // Draggable handle (dragged function defined below)
     let handle = svg.select("rect.handle");
     if (handle.empty()) {
       handle = svg
@@ -77,7 +75,7 @@ const SliderNode = ({ id, data, isConnectable }) => {
         .call(d3.drag().on("drag", dragged).on("end", dragEnded));
     }
 
-    // add the text to the top of the slider
+    // Label of the node
     let text = svg.select("text");
     if (text.empty()) {
       text = svg
@@ -89,8 +87,40 @@ const SliderNode = ({ id, data, isConnectable }) => {
         .text(data.text);
     }
 
+    // lower and upper bounds of the slider
+    // let lowerText = svg
+    //   .append("text")
+    //   .attr("x", nodeWidth / 2)
+    //   .attr("y", sliderHeight + marginVertical + marginVertical / 2)
+    //   .attr("text-anchor", "middle")
+    //   .attr("dominant-baseline", "middle")
+    //   .attr("font-size", "12px")
+    //   .text("0");
+
+    // let upperText = svg
+    //   .append("text")
+    //   .attr("x", nodeWidth / 2)
+    //   .attr("y", marginVertical / 2)
+    //   .attr("text-anchor", "middle")
+    //   .attr("dominant-baseline", "middle")
+    //   .attr("font-size", "12px")
+    //   .text("1");
+
+    // Value
+    let valueText = svg.select("text.value");
+    if (valueText.empty()) {
+      valueText = svg
+        .append("text")
+        .attr("class", "value")
+        .attr("x", marginHorizontal / 2)
+        .attr("y", sliderHeight - height + marginVertical)
+        .attr("text-anchor", "middle")
+        .attr("dominant-baseline", "middle")
+        .attr("font-size", "12px")
+        .text(data.value.toFixed(1));
+    }
+
     function dragged(event) {
-      // console.log("data.selectedData1:", selectedData); // here's the problem!!! the drag function has some kind of closure that keeps the old value of data.selectedData
       setIsDragging(true);
       const newY = event.y;
       let newHeight = sliderHeight - newY + marginVertical - handleHeight / 2;
@@ -100,16 +130,12 @@ const SliderNode = ({ id, data, isConnectable }) => {
       } else if (newHeight > sliderHeight) {
         newHeight = sliderHeight;
       }
-      console.log("newHeight:", newHeight.toFixed(0));
 
-      setHeight(newHeight); // Update height in state for immediate effect
+      // We don't need immediate effect, we just need to pass the value back to the parent
       const newValue = parseFloat(scale.invert(newHeight).toFixed(2));
       setNodeValue(newValue); // Update the node value
-      console.log(`${id} changed to ${newValue}`);
       // now, only works for the input nodes!
       const idx = id.split("input")[1] - 1; // get the index of the input node
-      // console.log("idx:", idx);
-      // console.log("data.selectedData:", data.selectedData);
       data.onValueChange(idx, newValue); // Update the value in parent
     }
 

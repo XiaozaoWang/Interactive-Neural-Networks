@@ -66,15 +66,15 @@ const InputField = ({ data }) => {
         }
 
         // Add a new larger circle on top of the clicked circle
-        graph
-          .append("circle")
-          .attr("class", "selected")
-          .attr("cx", xScale(d[0][0]))
-          .attr("cy", yScale(d[0][1]))
-          .attr("r", 8) // Larger radius
-          .attr("fill", "none")
-          .attr("stroke", "black")
-          .attr("stroke-width", 2);
+        // graph
+        //   .append("circle")
+        //   .attr("class", "selected")
+        //   .attr("cx", xScale(d[0][0]))
+        //   .attr("cy", yScale(d[0][1]))
+        //   .attr("r", 8) // Larger radius
+        //   .attr("fill", "none")
+        //   .attr("stroke", "black")
+        //   .attr("stroke-width", 2);
       });
     graph
       .append("circle")
@@ -85,6 +85,27 @@ const InputField = ({ data }) => {
       .attr("fill", "none")
       .attr("stroke", "black")
       .attr("stroke-width", 2);
+
+    // add x and y auxiliary lines
+    graph
+      .append("line")
+      .attr("x1", xScale(data.inputs[selectedData][0]))
+      .attr("y1", yScale(data.inputs[selectedData][1]))
+      .attr("x2", xScale(data.inputs[selectedData][0]))
+      .attr("y2", height)
+      .attr("stroke", "black")
+      .attr("stroke-width", 1)
+      .attr("stroke-dasharray", "4");
+
+    graph
+      .append("line")
+      .attr("x1", 0)
+      .attr("y1", yScale(data.inputs[selectedData][1]))
+      .attr("x2", xScale(data.inputs[selectedData][0]))
+      .attr("y2", yScale(data.inputs[selectedData][1]))
+      .attr("stroke", "black")
+      .attr("stroke-width", 1)
+      .attr("stroke-dasharray", "4");
   }, [data]);
 
   return (

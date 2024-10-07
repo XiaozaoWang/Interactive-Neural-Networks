@@ -6,8 +6,8 @@ import * as d3 from "d3";
 const DragNode = ({ id, data, isConnectable }) => {
   const svgRef = useRef(null);
   const [nodeValue, setNodeValue] = useState(data.value);
-  const nodeWidth = 20;
-  const nodeHeight = 100;
+  const nodeWidth = 50;
+  const nodeHeight = 50;
   const scale = d3.scaleLinear().domain([0, 1]).range([0, 100]);
   const [height, setHeight] = useState(scale(nodeValue)); // Keep track of the current height
   const [isDragging, setIsDragging] = useState(false);

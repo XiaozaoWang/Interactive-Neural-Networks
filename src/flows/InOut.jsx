@@ -17,6 +17,7 @@ import DragNode from "../components/DragNode.jsx";
 import SliderNode from "../components/SliderNode.jsx";
 import BlackBox from "../components/BlackBox.jsx";
 import TextNode from "../components/TextNode.jsx";
+import GraphNode from "../components/GraphNode.jsx";
 import { text } from "d3";
 
 const nodeTypes = {
@@ -25,6 +26,7 @@ const nodeTypes = {
   SliderNode: SliderNode,
   BlackBox: BlackBox,
   TextNode: TextNode,
+  GraphNode: GraphNode,
 };
 
 const InOut = ({}) => {
@@ -85,6 +87,7 @@ const InOut = ({}) => {
         data: {
           value: inputs[selectedData][1], // Change based on selectedData
           onValueChange: onValueChange,
+          text: "Input 2",
         },
         position: {
           x: 400,
@@ -104,7 +107,7 @@ const InOut = ({}) => {
         draggable: false,
       },
       {
-        id: "output",
+        id: "target",
         data: {
           value: targets[selectedData], // Change based on selectedData
         },
@@ -113,6 +116,35 @@ const InOut = ({}) => {
           y: 100,
         },
         type: "SliderNode",
+        draggable: false,
+        text: "Target",
+      },
+      // drag node
+      {
+        id: "drag",
+        data: {
+          value: 0.3,
+          onValueChange: (v) => console.log("drag:", v),
+        },
+        position: {
+          x: 500,
+          y: 300,
+        },
+        type: "DragNode",
+        draggable: false,
+      },
+      // graph node
+      {
+        id: "graph",
+        data: {
+          value: 0.3,
+          onValueChange: (v) => console.log("graph:", v),
+        },
+        position: {
+          x: 700,
+          y: 200,
+        },
+        type: "GraphNode",
         draggable: false,
       },
     ];
@@ -169,7 +201,7 @@ const InOut = ({}) => {
 
   return (
     <ReactFlowProvider>
-      <div style={{ height: "300px", width: "100%" }}>
+      <div style={{ height: "500px", width: "80%" }}>
         <ReactFlow
           nodes={nodes}
           edges={edges}
