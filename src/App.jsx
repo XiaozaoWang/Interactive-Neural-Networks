@@ -2,9 +2,13 @@ import React, { useState, useEffect } from "react";
 import NN from "./NN";
 import InOut from "./flows/InOut";
 import Test from "./test/Test";
-import Article from "./test/Article";
+import QuestionAnswer from "./test/QuestionAnswer";
 import { mean_squared_error, MLP, Value } from "./micrograd";
 import { tw } from "twind";
+
+import dogImage from "./images/dogs.jpg";
+import frustration from "./images/frustration.png";
+import nnann from "./images/nnann.jpg";
 
 const App = () => {
   const [mlp, setMlp] = useState(new MLP(3, [3, 1]));
@@ -84,10 +88,184 @@ const App = () => {
   }
 
   return (
-    <div className={tw`p-8 bg-gray-100 min-h-screen`}>
+    <div className={tw`pt-12 pb-12 pl-48 pr-48 bg-gray-100`}>
       <h1 className={tw`text-3xl font-bold mb-4 text-center text-gray-800`}>
-        Neural Network Visualizer (Work in Progress)
+        Interactive Neural Networks
       </h1>
+      <p>
+        This interactive article introduces neural networks in a way that’s
+        intuitive to understand, whether you’re a curious mind new to the topic,
+        or have used machine learning models but never fully grasped what’s
+        going on under the hood.
+      </p>
+      <br />
+      <p>
+        It will first dive into the reasoning behind neural network training
+        processes. Through a series of thought-provoking questions, it will
+        break down complex concepts into simple analogies, and answer why
+        certain steps are necessary and what purpose they serve.
+      </p>
+      <br />
+      <p>
+        Then it will open up the black box and show you what is exactly
+        happening inside neural networks. You will get hands-on with interactive
+        components, which operates on a real neural network and allows you to
+        adjust parameters, see real-time results, and deepen your understanding
+        as you explore. Instead of feeling “disconnected” from the learning
+        process of neural networks, I want to give greater control and freedom
+        to explore for every audience.
+      </p>
+      <br />
+      <p>
+        If you are interested… No previous knowledge of machine learning is
+        needed—just start exploring with an open mind and a bit of curiosity!
+      </p>
+      <br />
+      <strong>
+        This is a Q&A based and interactive learning journey. Click on questions
+        and play with interactive components to explore!{" "}
+      </strong>
+      <br />
+      <QuestionAnswer
+        question="Q: What are machine learning and neural networks?"
+        answer={
+          <>
+            <p>WIP</p>
+          </>
+        }
+      />
+      <QuestionAnswer
+        question="Q: Why do we need machine learning?"
+        answer={
+          <>
+            <p>
+              Imagine you’re trying to teach a computer how to recognize a
+              picture of a dog. In traditional programming, we’d have to write
+              down all the specific rules that define a "dog." We might say,
+              “Look for pointy ears, a wagging tail, and fur.” But the problem
+              is, dogs come in all shapes, sizes, and colors—some have floppy
+              ears, others no tail at all! Writing rules to account for all
+              these possibilities would become so complicated that we’d never
+              finish.
+            </p>
+            <br />
+            <div className={tw`flex justify-center items-center pl-80 pr-80`}>
+              <img src={dogImage} alt="" />
+            </div>
+            <br />
+            <p>
+              As you write these rules for the computer, you may find yourself
+              writing:
+            </p>
+            <br />
+            <div className={tw`flex justify-center items-center pl-60 pr-60`}>
+              <img src={frustration} alt="" />
+            </div>
+            <br />
+            <p>
+              So frustrating, isn’t it? Each new rule complicates the program
+              further, and you realize that capturing every possible variation
+              of a dog becomes an unmanageable task.
+            </p>
+            <br />
+            <p>
+              Now think of trying to apply this to something even more complex,
+              like recognizing faces. People have different hairstyles, facial
+              expressions, and angles. Describing all these with traditional
+              programming is like trying to capture the endless possibilities
+              with a set of rigid rules—it just doesn’t work.
+            </p>
+            <br />
+            <p>
+              But here’s where machine learning comes to the rescue. Instead of
+              writing all the rules ourselves, we let the computer learn the
+              rules from examples. We show it hundreds, thousands, even millions
+              of pictures of dogs, and over time, it figures out what makes a
+              dog look like a dog. Machine learning is powerful because it
+              doesn’t rely on us manually writing down rules—it learns from
+              data.
+            </p>
+            <br />
+            <p>
+              In this common practice called Supervised Learning, we give the
+              computer both the input (like a picture of a dog) and the correct
+              answer (label: “dog”). Over time, the computer looks for patterns,
+              learning to match new images with the correct labels. It’s like
+              teaching a child by showing them many examples and helping them
+              get better with practice.
+            </p>
+            <br />
+            <p>
+              Machine learning has transformed many industries by enabling
+              computers to learn from data and improve their performance over
+              time without explicit programming. For example, machine learning
+              improves disease diagnosis by recognizing patterns in medical
+              data, identify faces accurately by training on extensive image
+              datasets, and enhances chatbots through learning from user
+              interactions.
+            </p>
+          </>
+        }
+      />
+      <QuestionAnswer
+        question="Q: What are artificial neural networks?"
+        answer={
+          <>
+            <p>
+              Artificial neural networks are a specific type of machine learning
+              model inspired by the structure of the human brain.
+            </p>
+            <br />
+            <p>
+              In our brain, we have billions of neurons, and they work together
+              to take in information, process it, and help us make a decision.
+              Every single neuron does the same thing, but on a smaller scale.
+              It has branched structures called dendrites that receive signals
+              from other neurons. The signals are summed at the cell body
+              (soma). If the total excitatory input exceeds a certain threshold,
+              an electrical impulse is generated and passed to the next neurons.
+            </p>
+            <br />
+            <p>
+              Similar to the real neural networks in the brain, an artificial
+              neural network consists of layers of interconnected nodes, or
+              artificial neurons, that work together to process information.
+              Just like our brain learns from experience, an artificial neural
+              network learns from data and constantly adjusts itself to make
+              better decisions.
+            </p>
+            <br />
+            <div className={tw`flex justify-center items-center pl-72 pr-72`}>
+              <img src={nnann} alt="" />
+            </div>
+            <p>
+              From now, when we discuss the details about artificial neural
+              networks, we will use “neural networks” for simplicity. However,
+              please bear in mind that we are actually talking about artificial
+              neural networks and their difference from the real neural networks
+              in brains.
+            </p>
+          </>
+        }
+      />
+      <QuestionAnswer
+        question={"Q: What tasks does a neural network perform?"}
+        answer={
+          <>
+            <p>
+              It is just something that… Takes in Features, Outputs the
+              Prediction, and Learns to Perform Better from Its Errors.
+            </p>
+            <br />
+            <p>
+              Now, let’s understand those process by completing a simple goal:
+              Classification of two kinds of dogs.
+            </p>
+            <InOut />
+          </>
+        }
+      />
+
       <p className={tw`text-sm font-bold mb-4 text-center text-gray-800`}>
         Instruction for current version: Click "Feed" to pass the input data,
         and click "Train" multiple times to train the network. After several
@@ -142,12 +320,15 @@ const App = () => {
           <p className={tw`text-gray-600`}>{loss.data.toFixed(2)}</p>
         </div>
       </div>
-
-      <NN nnData={nnData} lastInputData={lastInputData} />
-      <InOut />
-      <Article />
-
-      {/* <Test /> */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          height: "400px",
+        }}
+      >
+        <NN nnData={nnData} lastInputData={lastInputData} />
+      </div>
     </div>
   );
 };

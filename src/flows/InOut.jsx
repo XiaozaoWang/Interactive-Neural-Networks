@@ -120,33 +120,33 @@ const InOut = ({}) => {
         text: "Target",
       },
       // drag node
-      {
-        id: "drag",
-        data: {
-          value: 0.3,
-          onValueChange: (v) => console.log("drag:", v),
-        },
-        position: {
-          x: 500,
-          y: 300,
-        },
-        type: "DragNode",
-        draggable: false,
-      },
-      // graph node
-      {
-        id: "graph",
-        data: {
-          value: 0.3,
-          onValueChange: (v) => console.log("graph:", v),
-        },
-        position: {
-          x: 700,
-          y: 200,
-        },
-        type: "GraphNode",
-        draggable: false,
-      },
+      // {
+      //   id: "drag",
+      //   data: {
+      //     value: 0.3,
+      //     onValueChange: (v) => console.log("drag:", v),
+      //   },
+      //   position: {
+      //     x: 500,
+      //     y: 300,
+      //   },
+      //   type: "DragNode",
+      //   draggable: false,
+      // },
+      // // graph node
+      // {
+      //   id: "graph",
+      //   data: {
+      //     value: 0.3,
+      //     onValueChange: (v) => console.log("graph:", v),
+      //   },
+      //   position: {
+      //     x: 700,
+      //     y: 200,
+      //   },
+      //   type: "GraphNode",
+      //   draggable: false,
+      // },
     ];
 
     const newEdges = [
@@ -167,7 +167,7 @@ const InOut = ({}) => {
       {
         id: "edge3",
         source: "blackbox",
-        target: "output",
+        target: "target",
         // sourceHandle: "right",
         animated: true,
       },
@@ -201,7 +201,7 @@ const InOut = ({}) => {
 
   return (
     <ReactFlowProvider>
-      <div style={{ height: "500px", width: "80%" }}>
+      <div style={{ height: "350px", width: "100%" }}>
         <ReactFlow
           nodes={nodes}
           edges={edges}

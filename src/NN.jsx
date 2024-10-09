@@ -210,7 +210,7 @@ const NN = ({ nnData, lastInputData }) => {
 
   return (
     <ReactFlowProvider>
-      <div style={{ height: "800px", width: "80%" }}>
+      <div style={{ height: "800px", width: "100%" }}>
         <ReactFlow
           nodes={nodes}
           edges={edges}
