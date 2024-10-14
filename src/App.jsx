@@ -9,6 +9,9 @@ import { tw } from "twind";
 import dogImage from "./images/dogs.jpg";
 import frustration from "./images/frustration.png";
 import nnann from "./images/nnann.jpg";
+import twodogs from "./images/twodogs.png";
+import twodogsnum from "./images/twodogsnum.png";
+import scale from "./images/scale.png";
 
 const App = () => {
   const [mlp, setMlp] = useState(new MLP(3, [3, 1]));
@@ -253,14 +256,95 @@ const App = () => {
         answer={
           <>
             <p>
-              It is just something that… Takes in Features, Outputs the
-              Prediction, and Learns to Perform Better from Its Errors.
+              A neural network helps us solve tasks by looking at patterns in
+              data. First, we give it some important details (features) about
+              the data, and then it tries to guess (make a prediction) based on
+              those details. Over time, it learns from its mistakes and gets
+              better at making the right predictions.
             </p>
             <br />
             <p>
               Now, let’s understand those process by completing a simple goal:
               Classification of two kinds of dogs.
             </p>
+            <br />
+            <strong>Features:</strong>
+            <br />
+            <p>
+              Think of features as the characteristics of the dog that we care
+              about. For example, <strong>body height</strong> and{" "}
+              <strong>fur color</strong> are two features we might use to tell
+              apart different kinds of dogs. These features are the input to the
+              neural network — the information it uses to make a decision.
+            </p>
+            <br />
+            <strong>Label:</strong>
+            <br />
+            <p>
+              Now, to teach the network how to classify, we also need something
+              called a <strong>label</strong>. A label is the correct answer
+              that we already know — in this case, whether the dog is a{" "}
+              <strong>Samoyed</strong> or a <strong>Dachshund</strong>. The
+              label helps the network understand what the right outcome should
+              be when it's training.
+            </p>
+            <br />
+            <p>
+              Now, here’s everything we know about our data. Each dog, with its
+              features and label, becomes a <strong>data point</strong> that the
+              network can learn from. Let’s see two of them:
+            </p>
+            <br />
+            <div className={tw`flex justify-center items-center pl-72 pr-72`}>
+              <img src={twodogs} alt="" />
+            </div>
+            <br />
+            <p>
+              To make the features easier for a neural network to understand, a
+              common approach is to map them to numeric values between [-1, 1].
+            </p>
+            <br />
+
+            <p>
+              For example, larger body height might be mapped closer to{" "}
+              <strong>1</strong>, and smaller body height closer to{" "}
+              <strong>-1</strong>.
+            </p>
+            <br />
+
+            <p>
+              White fur can be represented as <strong>-1</strong>, black fur as{" "}
+              <strong>1</strong>, and chocolate fur maybe as{" "}
+              <strong>0.8</strong> because it’s somewhere in between white and
+              black, but closer to black.
+            </p>
+            <br />
+
+            <p>
+              We can also turn the labels (in our case, type of dog) into
+              numbers. Here, we will set Samoyed as <strong>1</strong>, and
+              Dachshund as <strong>-1</strong>.
+            </p>
+            <br />
+
+            <p>
+              This process is called <strong>normalization</strong>, and it
+              helps the neural network compare features more easily because all
+              the numbers are now on a similar scale. By keeping values between{" "}
+              <strong>-1</strong> and <strong>1</strong>, we ensure that no
+              feature dominates the process just because it has larger numbers.
+            </p>
+            <br />
+            <div className={tw`flex justify-center items-center pl-72 pr-72`}>
+              <img src={scale} alt="" />
+            </div>
+            <br />
+            <p>We can then rearrange our data points:</p>
+            <br />
+            <div className={tw`flex justify-center items-center pl-72 pr-72`}>
+              <img src={twodogsnum} alt="" />
+            </div>
+            <br />
             <InOut />
           </>
         }
