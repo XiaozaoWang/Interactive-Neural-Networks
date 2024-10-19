@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
-import NN from "./NN";
-import InOut from "./flows/InOut";
-import Test from "./test/Test";
 import QuestionAnswer from "./test/QuestionAnswer";
 import { mean_squared_error, MLP, Value } from "./micrograd";
 import { tw } from "twind";
+
+// Flows
+import NN from "./NN";
+import InOut from "./flows/InOut";
+import SinglePredict from "./flows/SinglePredict";
 
 import dogImage from "./images/dogs.jpg";
 import frustration from "./images/frustration.png";
@@ -12,6 +14,7 @@ import nnann from "./images/nnann.jpg";
 import twodogs from "./images/twodogs.png";
 import twodogsnum from "./images/twodogsnum.png";
 import scale from "./images/scale.png";
+import { sum } from "d3";
 
 const App = () => {
   const [mlp, setMlp] = useState(new MLP(3, [3, 1]));
@@ -72,7 +75,7 @@ const App = () => {
 
   const handleStepChange = (e) => {
     const step = parseFloat(e.target.value);
-    console.log("step changed: ", step);
+    // console.log("step changed: ", step);
     setStep(step);
   };
 
@@ -81,20 +84,26 @@ const App = () => {
       layer.neurons.map((neuron) => ({
         weights: neuron.w.map((w) => w.data),
         bias: neuron.b.data,
+        sum: neuron.sum.data,
         output: neuron.out.data,
         grad: neuron.b.grad,
       }))
     );
     const updatedData = { size: mlp.sz, layers: layers };
-    console.log("updatedData: ", updatedData);
+    // console.log("updatedData: ", updatedData);
     return updatedData;
   }
 
   return (
-    <div className={tw`pt-12 pb-12 pl-48 pr-48 bg-gray-100`}>
+    // <div className={tw`pt-12 pb-12 pl-48 pr-48 bg-gray-100`}>
+    <div className={tw` bg-gray-100`}>
       <h1 className={tw`text-3xl font-bold mb-4 text-center text-gray-800`}>
         Interactive Neural Networks
       </h1>
+
+      {/* <InOut /> */}
+      <SinglePredict />
+
       <p>
         This interactive article introduces neural networks in a way that’s
         intuitive to understand, whether you’re a curious mind new to the topic,
@@ -345,7 +354,7 @@ const App = () => {
               <img src={twodogsnum} alt="" />
             </div>
             <br />
-            <InOut />
+            {/* <InOut /> */}
           </>
         }
       />
@@ -404,6 +413,7 @@ const App = () => {
           <p className={tw`text-gray-600`}>{loss.data.toFixed(2)}</p>
         </div>
       </div>
+
       <div
         style={{
           display: "flex",
@@ -411,7 +421,7 @@ const App = () => {
           height: "400px",
         }}
       >
-        <NN nnData={nnData} lastInputData={lastInputData} />
+        {/* <NN nnData={nnData} lastInputData={lastInputData} /> */}
       </div>
     </div>
   );

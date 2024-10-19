@@ -14,10 +14,12 @@ const SliderNode = ({ id, data, isConnectable }) => {
   const handleHeight = 6;
   const marginVertical = (nodeHeight - sliderHeight) / 2;
   const marginHorizontal = (nodeWidth - sliderWidth) / 2;
-  const scale = d3.scaleLinear().domain([0, 1]).range([0, 100]);
+  const grayscale = data.grayscale ? data.grayscale : 50;
+  const scale = d3.scaleLinear().domain([-1, 1]).range([0, 100]);
   const [height, setHeight] = useState(scale(nodeValue)); // Keep track of the current height
   const [isDragging, setIsDragging] = useState(false);
   const [selectedData, setSelectedData] = useState(data.selectedData);
+  const draggable = data.draggable;
 
   // 1. Update the graph when data.value changes
   useEffect(() => {
@@ -32,7 +34,15 @@ const SliderNode = ({ id, data, isConnectable }) => {
         sliderHeight - scale(data.value) + marginVertical - handleHeight / 2
       );
 
-    // 2. transition the value text to the new y position
+    // 2. transition the progress bar to the new y position
+    svg
+      .select("rect.progress")
+      .transition()
+      .duration(isDragging ? 0 : 200)
+      .attr("y", sliderHeight - scale(data.value) + marginVertical)
+      .attr("height", scale(data.value));
+
+    // 3. transition the value text to the new y position
     //    and update the text to the new value
     svg
       .select("text.value")
@@ -61,6 +71,19 @@ const SliderNode = ({ id, data, isConnectable }) => {
         .attr("rx", 2); // Rounded corners
     }
 
+    // progress bar
+    let progress = svg.select("rect.progress");
+    if (progress.empty()) {
+      progress = svg
+        .append("rect")
+        .attr("class", "progress")
+        .attr("x", marginHorizontal)
+        .attr("y", sliderHeight - height + marginVertical)
+        .attr("width", sliderWidth)
+        .attr("height", height)
+        .attr("fill", "#EEEEEE");
+    }
+
     // Draggable handle (dragged function defined below)
     let handle = svg.select("rect.handle");
     if (handle.empty()) {
@@ -81,7 +104,7 @@ const SliderNode = ({ id, data, isConnectable }) => {
       text = svg
         .append("text")
         .attr("x", marginHorizontal + sliderWidth / 2)
-        .attr("y", marginVertical / 2)
+        .attr("y", marginVertical / 2 + 5)
         .attr("text-anchor", "middle")
         .attr("font-size", "12px")
         .text(data.text);
@@ -121,6 +144,7 @@ const SliderNode = ({ id, data, isConnectable }) => {
     }
 
     function dragged(event) {
+      if (!draggable) return;
       setIsDragging(true);
       const newY = event.y;
       let newHeight = sliderHeight - newY + marginVertical - handleHeight / 2;
@@ -152,7 +176,7 @@ const SliderNode = ({ id, data, isConnectable }) => {
         isConnectable={isConnectable}
       />
       <div
-        className={tw`w-[${nodeWidth}px] h-[${nodeHeight}px] p-0 m-0 bg-gray-50 border border-gray-100 rounded-md`}
+        className={tw`w-[${nodeWidth}px] h-[${nodeHeight}px] p-0 m-0 bg-gray-${grayscale} border border-gray-200 rounded-md`}
       >
         <svg ref={svgRef} width="100%" height="100%" />
       </div>

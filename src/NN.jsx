@@ -38,11 +38,11 @@ const NN = ({ nnData, lastInputData }) => {
         const updatedNodes = applyNodeChanges(changes, nds);
 
         // Print the current position of all the nodes
-        updatedNodes.forEach((node) => {
-          console.log(
-            `Node ${node.id} is at position x: ${node.position.x}, y: ${node.position.y}`
-          );
-        });
+        // updatedNodes.forEach((node) => {
+        //   console.log(
+        //     `Node ${node.id} is at position x: ${node.position.x}, y: ${node.position.y}`
+        //   );
+        // });
 
         return updatedNodes;
       });
@@ -205,7 +205,7 @@ const NN = ({ nnData, lastInputData }) => {
   };
 
   const onHeightChange = (newHeight) => {
-    console.log("newHeight:", newHeight);
+    // console.log("newHeight:", newHeight);
   };
 
   return (

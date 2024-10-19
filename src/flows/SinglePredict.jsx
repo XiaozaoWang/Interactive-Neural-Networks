@@ -22,6 +22,7 @@ import TextNode from "../components/TextNode.jsx";
 import GraphNode from "../components/GraphNode.jsx";
 import ButtonNode from "../components/ButtonNode.jsx";
 import FaceNode from "../components/FaceNode.jsx";
+import SumNode from "../components/SumNode.jsx";
 import { drag, text } from "d3";
 
 const nodeTypes = {
@@ -33,9 +34,10 @@ const nodeTypes = {
   GraphNode: GraphNode,
   ButtonNode: ButtonNode,
   FaceNode: FaceNode,
+  SumNode: SumNode,
 };
 
-const InOut = ({}) => {
+const SinglePredict = ({}) => {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
@@ -109,7 +111,6 @@ const InOut = ({}) => {
       layer.neurons.map((neuron) => ({
         weights: neuron.w.map((w) => w.data),
         bias: neuron.b.data,
-        sum: neuron.sum.data,
         output: neuron.out.data,
         grad: neuron.b.grad,
       }))
@@ -308,4 +309,4 @@ const InOut = ({}) => {
   );
 };
 
-export default InOut;
+export default SinglePredict;
