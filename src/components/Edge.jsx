@@ -7,6 +7,7 @@ import {
   //   useReactFlow,
 } from "@xyflow/react";
 import { FaCaretUp, FaCaretDown } from "react-icons/fa";
+import { tw } from "twind";
 
 // import "./edge.css";
 
@@ -82,6 +83,7 @@ export default function Edge({
           }}
           className="nodrag nopan"
         >
+          <span className={tw`text-blue-400`}>×</span>
           {data.value}
           <div
             style={{
