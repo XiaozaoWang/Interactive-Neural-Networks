@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Handle, Position } from "@xyflow/react";
 import { tw } from "twind";
 import * as d3 from "d3";
+import { TbSum } from "react-icons/tb";
 
 const SumNode = ({ id, data, isConnectable }) => {
   const svgRef = useRef(null);
@@ -9,64 +10,34 @@ const SumNode = ({ id, data, isConnectable }) => {
   const [weights, setWeights] = useState(data.weights);
   const [bias, setBias] = useState(data.bias);
 
-  const nodeWidth = 100;
-  const nodeHeight = 150;
-  const scale = d3.scaleLinear().domain([-1, 1]).range([0, nodeHeight]);
+  const nodeWidth = 30;
+  const nodeHeight = 130;
+  const scale = d3.scaleLinear().domain([-3, 3]).range([0, nodeHeight]);
   const [height, setHeight] = useState(scale(sum)); // Keep track of the current height
-  const [biasHeight, setBiasHeight] = useState(scale(bias)); // Keep track of the current height
+  //   const [biasHeight, setBiasHeight] = useState(scale(bias)); // Keep track of the current height
   const [isDragging, setIsDragging] = useState(false);
   const draggable = data.draggable ? data.draggable : false;
 
   // Update the graph when data.value changes
   useEffect(() => {
     const svg = d3.select(svgRef.current);
-    // 1. Transition the draggable handle to the new y position
-    svg
-      .select("rect.handle")
-      .transition()
-      .duration(isDragging ? 0 : 200)
-      .attr(
-        "y",
-        sliderHeight - scale(data.value) + marginVertical - handleHeight / 2
-      );
+    // transition the progress bar to the new y position
 
-    // 2. transition the progress bar to the new y position
+    console.log("data.sum: ", data.sum);
     svg
       .select("rect.progress")
       .transition()
       .duration(isDragging ? 0 : 200)
-      .attr("y", sliderHeight - scale(data.value) + marginVertical)
-      .attr("height", scale(data.value));
-
-    // 3. transition the value text to the new y position
-    //    and update the text to the new value
-    svg
-      .select("text.value")
-      .transition()
-      .duration(isDragging ? 0 : 200)
-      .attr("y", sliderHeight - scale(data.value) + marginVertical)
-      .text(data.value.toFixed(1));
-  }, [data.value]); // Depend only on data.value (passed from parent)
+      .attr("y", nodeHeight - scale(data.sum))
+      .attr("height", scale(data.sum));
+  }, [data.sum]); // Depend only on data.sum (passed from parent)
 
   // Render the SVG graphic initially and define dragging functiona
   useEffect(() => {
     const svg = d3.select(svgRef.current);
 
-    // Slider
-    // let rect = svg.select("rect.slider");
-    // if (rect.empty()) {
-    //   rect = svg
-    //     .append("rect")
-    //     .attr("class", "slider")
-    //     .attr("x", marginHorizontal)
-    //     .attr("y", marginVertical) // Initial height
-    //     .attr("width", sliderWidth)
-    //     .attr("height", sliderHeight)
-    //     .attr("stroke", "#aaa")
-    //     .attr("fill", "none")
-    //     .attr("rx", 2); // Rounded corners
-    // }
-
+    //
+    "data: ", data;
     // progress bar
     let progress = svg.select("rect.progress");
     if (progress.empty()) {
@@ -77,67 +48,26 @@ const SumNode = ({ id, data, isConnectable }) => {
         .attr("y", nodeHeight - height)
         .attr("width", nodeWidth)
         .attr("height", height)
-        .attr("fill", "#FFFFCC");
-    }
-
-    // Draggable handle (dragged function defined below)
-    let handle = svg.select("rect.handle");
-    if (handle.empty()) {
-      handle = svg
-        .append("rect")
-        .attr("class", "handle")
-        .attr("x", marginHorizontal - (handleWidth - sliderWidth) / 2)
-        .attr("y", sliderHeight - height + marginVertical - handleHeight / 2)
-        .attr("width", handleWidth)
-        .attr("height", handleHeight)
-        .attr("fill", "#FF9100")
-        .call(d3.drag().on("drag", dragged).on("end", dragEnded));
-    }
-
-    // Label of the node
-    let text = svg.select("text");
-    if (text.empty()) {
-      text = svg
-        .append("text")
-        .attr("x", marginHorizontal + sliderWidth / 2)
-        .attr("y", marginVertical / 2 + 5)
-        .attr("text-anchor", "middle")
-        .attr("font-size", "12px")
-        .text(data.text);
-    }
-
-    // Value
-    let valueText = svg.select("text.value");
-    if (valueText.empty()) {
-      valueText = svg
-        .append("text")
-        .attr("class", "value")
-        .attr("x", marginHorizontal / 2)
-        .attr("y", sliderHeight - height + marginVertical)
-        .attr("text-anchor", "middle")
-        .attr("dominant-baseline", "middle")
-        .attr("font-size", "12px")
-        .text(data.value.toFixed(1));
+        .attr("fill", "#FCEA8F");
     }
 
     function dragged(event) {
       if (!draggable) return;
       setIsDragging(true);
       const newY = event.y;
-      let newHeight = sliderHeight - newY + marginVertical - handleHeight / 2;
+      let newBiasHeight = nodeHeight - newY;
       // constrain the height to the range [0, sliderHeight]
-      if (newHeight < 0) {
-        newHeight = 0;
-      } else if (newHeight > sliderHeight) {
-        newHeight = sliderHeight;
+      if (newBiasHeight < 0) {
+        newBiasHeight = 0;
+      } else if (newBiasHeight > nodeHeight) {
+        newBiasHeight = sliderHeight;
       }
 
       // We don't need immediate effect, we just need to pass the value back to the parent
-      const newValue = parseFloat(scale.invert(newHeight).toFixed(2));
-      setNodeValue(newValue); // Update the node value
-      // now, only works for the input nodes!
-      const idx = id.split("input")[1] - 1; // get the index of the input node
-      data.onValueChange(idx, newValue); // Update the value in parent
+      const newBiasValue = parseFloat(scale.invert(newBiasHeight).toFixed(2));
+      //   setNodeValue(newValue); // Update the node value
+
+      data.onBiasChange(newBiasValue); // Update the value in parent
     }
 
     function dragEnded(event) {
@@ -151,16 +81,21 @@ const SumNode = ({ id, data, isConnectable }) => {
         type="target"
         position={Position.Left}
         isConnectable={isConnectable}
+        className={tw`w-2 h-2 bg-blue-400`}
       />
       <div
-        className={tw`w-[${nodeWidth}px] h-[${nodeHeight}px] p-0 m-0 bg-gray-${grayscale} border border-gray-200 rounded-md`}
+        className={tw`w-[${nodeWidth}px] h-[${nodeHeight}px] p-0 m-0 bg-gray-50 border border-gray-300 rounded-md`}
       >
         <svg ref={svgRef} width="100%" height="100%" />
+        <div className={tw`absolute inset-0 flex justify-center items-center`}>
+          <TbSum className={tw`text-gray-700 text-3xl`} />
+        </div>
       </div>
       <Handle
         type="source"
         position={Position.Right}
         isConnectable={isConnectable}
+        className={tw`w-2 h-2 bg-blue-400`}
       />
     </>
   );

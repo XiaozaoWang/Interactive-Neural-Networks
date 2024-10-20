@@ -13,10 +13,10 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 
-import Node from "./components/Node.jsx";
-import DragNode from "./components/DragNode.jsx";
-import GraphNode from "./components/GraphNode.jsx";
-import Edge from "./components/Edge.jsx";
+import Node from "../components/Node.jsx";
+import DragNode from "../components/DragNode.jsx";
+import GraphNode from "../components/GraphNode.jsx";
+import Edge from "../components/Edge.jsx";
 
 const nodeTypes = {
   node: Node,

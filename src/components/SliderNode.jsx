@@ -174,6 +174,7 @@ const SliderNode = ({ id, data, isConnectable }) => {
         type="target"
         position={Position.Left}
         isConnectable={isConnectable}
+        className={tw`w-2 h-2 bg-blue-400`}
       />
       <div
         className={tw`w-[${nodeWidth}px] h-[${nodeHeight}px] p-0 m-0 bg-gray-${grayscale} border border-gray-200 rounded-md`}
@@ -184,6 +185,7 @@ const SliderNode = ({ id, data, isConnectable }) => {
         type="source"
         position={Position.Right}
         isConnectable={isConnectable}
+        className={tw`w-2 h-2 bg-blue-400`}
       />
     </>
   );

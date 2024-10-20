@@ -163,13 +163,13 @@ const InputField = ({ data }) => {
       .attr("fill", (d) => (d[1] === 1 ? "blue" : "red"))
       .attr("stroke", "none") // Default no stroke
       .on("click", function (event, d) {
-        console.log("I'm clicked");
+        // console.log("I'm clicked");
         graph.selectAll(".selected").remove();
 
         // get the index of the selected data
         const index = combinedData.findIndex((item) => item === d);
-        console.log("Selected data:", d);
-        console.log("Selected index:", index);
+        // console.log("Selected data:", d);
+        // console.log("Selected index:", index);
         setSelectedData(index);
 
         // Call the onSelect callback to pass selected data to the parent

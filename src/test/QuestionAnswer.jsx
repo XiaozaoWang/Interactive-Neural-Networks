@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { tw } from "twind"; // For Tailwind CSS (or Twind)
 
-const QuestionAnswer = ({ question, answer }) => {
-  const [isOpen, setIsOpen] = useState(false);
+const QuestionAnswer = ({ question, answer, state }) => {
+  const [isOpen, setIsOpen] = useState(state);
 
   return (
     <div className={tw`border-b border-gray-300 py-4`}>

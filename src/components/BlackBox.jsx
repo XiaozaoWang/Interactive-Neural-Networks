@@ -28,6 +28,7 @@ const BlackBox = ({ data, isConnectable }) => {
         type="target"
         position={Position.Left}
         isConnectable={isConnectable}
+        className={tw`w-2 h-2 bg-blue-400`}
       />
       <div
         className={tw`w-[${nodeWidth}px] h-[${nodeHeight}px] p-0 m-0 bg-gray-100 border border-gray-300 rounded-md flex flex-col items-center justify-center transition-all duration-500 ${
@@ -53,6 +54,7 @@ const BlackBox = ({ data, isConnectable }) => {
         type="source"
         position={Position.Right}
         isConnectable={isConnectable}
+        className={tw`w-2 h-2 bg-blue-400`}
       />
     </>
   );

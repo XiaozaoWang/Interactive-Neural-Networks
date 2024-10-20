@@ -49,13 +49,19 @@ const InOut = ({}) => {
     [0.9, -0.7],
     [0.95, -0.9],
     [0.7, -0.7],
+    [1.0, -0.5],
+    [0.4, -0.8],
     [-0.6, 0.7],
     [-0.9, 0.9],
     [-0.8, 0.8],
     [-0.9, 0.65],
+    [-0.6, 0.5],
+    [-0.4, 0.9],
   ]);
 
-  const [targets, setTargets] = useState([1, 1, 1, 1, -1, -1, -1, -1]);
+  const [targets, setTargets] = useState([
+    1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1,
+  ]);
   const [selectedData, setSelectedData] = useState(0);
   const [comingData, setComingData] = useState(null);
   const [comingIdx, setComingIdx] = useState(null);
@@ -291,15 +297,15 @@ const InOut = ({}) => {
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
-            // panOnDrag={false}
-            // zoomOnScroll={false}
+            panOnDrag={false}
+            zoomOnScroll={false}
             zoomOnDoubleClick={false}
           >
             {/* <Controls /> */}
             <Background
               bgColor="#fafafa"
               variant={false}
-              // style={{ border: "1px solid black" }}
+              style={{ border: "1px solid lightgray" }}
             />
           </ReactFlow>
         </div>

@@ -4,7 +4,7 @@ import { mean_squared_error, MLP, Value } from "./micrograd";
 import { tw } from "twind";
 
 // Flows
-import NN from "./NN";
+import NN from "./flows/NN";
 import InOut from "./flows/InOut";
 import SinglePredict from "./flows/SinglePredict";
 
@@ -95,14 +95,11 @@ const App = () => {
   }
 
   return (
-    // <div className={tw`pt-12 pb-12 pl-48 pr-48 bg-gray-100`}>
-    <div className={tw` bg-gray-100`}>
+    <div className={tw`pt-12 pb-12 pl-48 pr-48 bg-gray-100`}>
+      {/* <div className={tw` bg-gray-100`}> */}
       <h1 className={tw`text-3xl font-bold mb-4 text-center text-gray-800`}>
         Interactive Neural Networks
       </h1>
-
-      {/* <InOut /> */}
-      <SinglePredict />
 
       <p>
         This interactive article introduces neural networks in a way that’s
@@ -139,6 +136,7 @@ const App = () => {
       </strong>
       <br />
       <QuestionAnswer
+        state={false}
         question="Q: What are machine learning and neural networks?"
         answer={
           <>
@@ -147,6 +145,7 @@ const App = () => {
         }
       />
       <QuestionAnswer
+        state={false}
         question="Q: Why do we need machine learning?"
         answer={
           <>
@@ -220,6 +219,7 @@ const App = () => {
         }
       />
       <QuestionAnswer
+        state={false}
         question="Q: What are artificial neural networks?"
         answer={
           <>
@@ -261,6 +261,7 @@ const App = () => {
         }
       />
       <QuestionAnswer
+        state={true}
         question={"Q: What tasks does a neural network perform?"}
         answer={
           <>
@@ -354,75 +355,108 @@ const App = () => {
               <img src={twodogsnum} alt="" />
             </div>
             <br />
-            {/* <InOut /> */}
+            <br />
+            <br />
+            <p>
+              Select different data points and hit the Train button, and see how
+              a neural network learns to predict the type of dog!
+            </p>
+            <br />
+            <div className={tw`flex justify-center items-center`}>
+              <InOut />
+            </div>
           </>
         }
       />
 
-      <p className={tw`text-sm font-bold mb-4 text-center text-gray-800`}>
-        Instruction for current version: Click "Feed" to pass the input data,
-        and click "Train" multiple times to train the network. After several
-        training, the Loss value will be reduced greatly.
-      </p>
-      <button
-        className={tw`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none m-2`}
-        onClick={handleFeed}
-      >
-        Feed
-      </button>
-      <button
-        className={tw`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none m-2`}
-        onClick={handleTrain}
-      >
-        Train
-      </button>
-      <select onChange={handleStepChange} className={tw`m-2`}>
-        <option value="0.2">0.2</option>
-        <option value="0.1">0.1</option>
-        <option value="0.05">0.05</option>
-        <option defaultValue="0.02">0.02</option>
-      </select>
-
-      <div className={tw`flex mt-8 space-x-8`}>
-        <div className={tw`flex-1`}>
-          <h2 className={tw`text-xl font-semibold mb-2 text-gray-700`}>
-            Predictions:
-          </h2>
-          {predictions.map((pred, index) => (
-            <p key={index} className={tw`text-gray-600`}>
-              Output {index + 1}: {pred.toFixed(2)}
+      <QuestionAnswer
+        state={true}
+        question="Q: How does a single node predict?"
+        answer={
+          <>
+            <p>
+              Let’s adjust the weights to see how they affect the final result.
             </p>
-          ))}
-        </div>
+            <br />
+            <div className={tw`flex justify-center items-center`}>
+              <SinglePredict />
+            </div>
+          </>
+        }
+      />
 
-        <div className={tw`flex-1`}>
-          <h2 className={tw`text-xl font-semibold mb-2 text-gray-700`}>
-            Targets:
-          </h2>
-          {targets.map((t, index) => (
-            <p key={index} className={tw`text-gray-600`}>
-              Output {index + 1}: {t.toFixed(2)}
+      <QuestionAnswer
+        state={false}
+        question="Full interactive Neural Network"
+        answer={
+          <>
+            <p className={tw`text-sm font-bold mb-4 text-center text-gray-800`}>
+              Instruction for current version: Click "Feed" to pass the input
+              data, and click "Train" multiple times to train the network. After
+              several training, the Loss value will be reduced greatly.
             </p>
-          ))}
-        </div>
+            <button
+              className={tw`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none m-2`}
+              onClick={handleFeed}
+            >
+              Feed
+            </button>
+            <button
+              className={tw`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none m-2`}
+              onClick={handleTrain}
+            >
+              Train
+            </button>
+            <select onChange={handleStepChange} className={tw`m-2`}>
+              <option value="0.2">0.2</option>
+              <option value="0.1">0.1</option>
+              <option value="0.05">0.05</option>
+              <option defaultValue="0.02">0.02</option>
+            </select>
 
-        <div className={tw`flex-1`}>
-          <h2 className={tw`text-xl font-semibold mb-2 text-gray-700`}>
-            Loss:
-          </h2>
-          <p className={tw`text-gray-600`}>{loss.data.toFixed(2)}</p>
-        </div>
-      </div>
+            <div className={tw`flex mt-8 space-x-8`}>
+              <div className={tw`flex-1`}>
+                <h2 className={tw`text-xl font-semibold mb-2 text-gray-700`}>
+                  Predictions:
+                </h2>
+                {predictions.map((pred, index) => (
+                  <p key={index} className={tw`text-gray-600`}>
+                    Output {index + 1}: {pred.toFixed(2)}
+                  </p>
+                ))}
+              </div>
 
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          height: "400px",
-        }}
-      >
-        {/* <NN nnData={nnData} lastInputData={lastInputData} /> */}
-      </div>
+              <div className={tw`flex-1`}>
+                <h2 className={tw`text-xl font-semibold mb-2 text-gray-700`}>
+                  Targets:
+                </h2>
+                {targets.map((t, index) => (
+                  <p key={index} className={tw`text-gray-600`}>
+                    Output {index + 1}: {t.toFixed(2)}
+                  </p>
+                ))}
+              </div>
+
+              <div className={tw`flex-1`}>
+                <h2 className={tw`text-xl font-semibold mb-2 text-gray-700`}>
+                  Loss:
+                </h2>
+                <p className={tw`text-gray-600`}>{loss.data.toFixed(2)}</p>
+              </div>
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                height: "400px",
+              }}
+            >
+              <NN nnData={nnData} lastInputData={lastInputData} />
+            </div>
+          </>
+        }
+      />
     </div>
   );
 };

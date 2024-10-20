@@ -6,6 +6,7 @@ import {
   getBezierPath,
   //   useReactFlow,
 } from "@xyflow/react";
+import { FaCaretUp, FaCaretDown } from "react-icons/fa";
 
 // import "./edge.css";
 
@@ -50,6 +51,14 @@ export default function Edge({
     };
   }
 
+  // const onIncrease = (id) => {
+  //   console.log("Increase value of edge with id: ", id);
+  // };
+
+  // const onDecrease = (id) => {
+  //   console.log("Decrease value of edge with id: ", id);
+  // };
+
   return (
     <>
       <BaseEdge id={id} path={edgePath} style={edgeStyle} />
@@ -58,16 +67,43 @@ export default function Edge({
           style={{
             position: "absolute",
             transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
-            fontSize: 12,
+            fontSize: 16,
             // everything inside EdgeLabelRenderer has no pointer events by default
             // if you have an interactive element, set pointer-events: all
             pointerEvents: "all",
             backgroundColor: "white",
-            display: data?.isHovered ? "block" : "none", // Example of conditional rendering
+            paddingLeft: 2,
+            border: "1px solid gray",
+            // for now always show the label
+            display: "flex",
+            // display: data?.isHovered ? "flex" : "none", // Example of conditional rendering
+            alignItems: "center", // Center items vertically
+            justifyContent: "center", // Center items horizontally
           }}
           className="nodrag nopan"
         >
           {data.value}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <button
+              onClick={() => data.onWeightIncrease(id)}
+              style={{ marginLeft: "5px" }}
+            >
+              <FaCaretUp />
+            </button>
+            <button
+              onClick={() => data.onWeightDecrease(id)}
+              style={{ marginLeft: "5px" }}
+            >
+              <FaCaretDown />
+            </button>
+          </div>
         </div>
       </EdgeLabelRenderer>
     </>
