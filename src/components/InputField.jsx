@@ -156,7 +156,7 @@ const InputField = ({ data }) => {
             <strong>Color:</strong> {data.inputs[selectedData]?.[1]}
           </p>
           <p>
-            <strong>Answer: </strong>
+            <strong>Label: </strong>
             {data.targets[selectedData] == 1 ? "Samoyed" : "Dachshund"} (
             {data.targets[selectedData]})
           </p>
@@ -185,15 +185,6 @@ const InputField = ({ data }) => {
               represent Dachshund.
             </li>
           </ul>
-          <p className={tw`py-[0px]`}>
-            <strong>1. </strong>Click on different data points.
-          </p>
-          <p className={tw`py-[0px]`}>
-            <strong>2. </strong>Tell neural network the size and color of a dog.
-          </p>
-          <p className={tw`py-[0px]`}>
-            <strong>3. </strong>See its prediction of the dog's type.
-          </p>
         </div>
       )}
     </div>

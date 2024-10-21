@@ -7,7 +7,9 @@ const TextNode = ({ id, data }) => {
   const text = data.text;
   return (
     <>
-      <div className={tw`p-0 m-0 bg-gray-50 border border-gray-100 rounded-md`}>
+      <div
+        className={tw`w-[${data.width}px] p-0 m-0 bg-gray-50 border border-gray-100 rounded-md text-[14px]`}
+      >
         {text}
       </div>
     </>

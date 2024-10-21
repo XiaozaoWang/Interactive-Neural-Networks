@@ -204,7 +204,7 @@ const InOut = ({}) => {
         data: {
           value: targets[selectedData], // Change based on selectedData
           onValueChange: onValueChange,
-          text: "Answer",
+          text: "Label",
           grayscale: 50, // doesn't look good
         },
         position: {
@@ -225,6 +225,110 @@ const InOut = ({}) => {
         },
         type: "FaceNode",
         draggable: false,
+      },
+      {
+        id: "inputfieldinstruction",
+        data: {
+          text: (
+            <div>
+              <p className={tw`py-[0px]`}>
+                <strong>1. </strong>
+                <strong className={tw`text-blue-500`}>Click on</strong>{" "}
+                different data points.
+              </p>
+            </div>
+          ),
+          width: 220,
+        },
+        position: {
+          x: 100,
+          y: 400,
+        },
+        type: "TextNode",
+      },
+      {
+        id: "inputinstruction",
+        data: {
+          text: (
+            <div>
+              <p className={tw`py-[0px]`}>
+                <strong>2. </strong>The features and labels will be fed into our
+                Neural Network.
+              </p>
+            </div>
+          ),
+          width: 150,
+        },
+        position: {
+          x: 370,
+          y: 380,
+        },
+        type: "TextNode",
+      },
+      // {
+      //   id: "networkinstruction",
+      //   data: {
+      //     text: (
+      //       <div>
+      //         <p className={tw`pb-[5px]`}>
+      //           <strong>3. </strong>After you selected the data,{" "}
+      //           <strong className={tw`text-blue-500 font-bold`}>
+      //             click the Train button
+      //           </strong>{" "}
+      //           to train the neural network.
+      //         </p>
+      //         <p>
+      //           You need to click{" "}
+      //           <strong className={tw`text-blue-500 font-bold`}>
+      //             multiple times
+      //           </strong>{" "}
+      //           to improve the results.
+      //         </p>
+      //       </div>
+      //     ),
+      //     width: 220,
+      //   },
+      //   position: {
+      //     x: 600,
+      //     y: 400,
+      //   },
+      //   type: "TextNode",
+      // },
+      {
+        id: "predictinstruction",
+        data: {
+          text: (
+            <div>
+              <p className={tw`pb-[4px]`}>
+                <strong>3. </strong>Compare the{" "}
+                <strong className={tw`text-blue-500 font-bold`}>
+                  prediction
+                </strong>{" "}
+                and the{" "}
+                <strong className={tw`text-blue-500 font-bold`}>label</strong>{" "}
+                (right answer).
+              </p>
+              <p className={tw`pb-[12px]`}>Is the prediction good?</p>
+              <p className={tw`pb-[4px]`}>
+                <strong>4. </strong>Now try to hit the{" "}
+                <strong className={tw`text-red-400 font-bold`}>
+                  Train Button
+                </strong>{" "}
+                <strong className={tw`text-blue-500 font-bold`}>
+                  multiple times
+                </strong>
+                , has the result improved for current data point?
+              </p>
+              <p>How about other data points?</p>
+            </div>
+          ),
+          width: 300,
+        },
+        position: {
+          x: 870,
+          y: 330,
+        },
+        type: "TextNode",
       },
     ];
 
@@ -289,7 +393,7 @@ const InOut = ({}) => {
   return (
     <>
       <ReactFlowProvider>
-        <div style={{ height: "400px", width: "1250px" }}>
+        <div style={{ height: "550px", width: "1250px" }}>
           <ReactFlow
             nodes={nodes}
             edges={edges}

@@ -228,7 +228,7 @@ const SinglePredict = ({}) => {
         data: {
           value: targets[selectedData], // Change based on selectedData
           onValueChange: onValueChange,
-          text: "Answer",
+          text: "Label",
           grayscale: 50, // doesn't look good
         },
         position: {
