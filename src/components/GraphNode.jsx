@@ -15,13 +15,25 @@ const GraphNode = ({ data }) => {
   const xScale = d3.scaleLinear().domain([-3, 3]).range([0, width]);
   const yScale = d3.scaleLinear().domain([-1, 1]).range([height, 0]);
 
-  // Define the tanh function
-  function tanh(x) {
-    return (Math.exp(2 * x) - 1) / (Math.exp(2 * x) + 1);
-  }
+  // Define the functions
+  // function tanh(x) {
+  //   return (Math.exp(2 * x) - 1) / (Math.exp(2 * x) + 1);
+  // }
 
-  const sum = data.sum;
-  const [out, setOut] = useState(data.out);
+  // function step(x) {
+  //   return x > 0 ? 1 : 0;
+  // }
+
+  // function activation(x) {
+  //   if (data.function === "tanh") {
+  //     return tanh(x);
+  //   } else if (data.function === "step") {
+  //     return step(x);
+  //   }
+  // }
+
+  const input = data.input;
+  const [output, setOutput] = useState(data.output);
   const [isDragging, setIsDragging] = useState(false);
   const draggable = data.draggable ? data.draggable : false;
 
@@ -31,10 +43,14 @@ const GraphNode = ({ data }) => {
     svg
       .select("circle")
       .transition()
-      .duration(isDragging ? 0 : 200)
-      .attr("cx", xScale(data.sum))
-      .attr("cy", yScale(tanh(data.sum)));
-  }, [data.sum]); // Depend only on data.sum (passed from parent)
+      // .duration(isDragging ? 0 : 200)
+      .duration(0) // !!!!! Naruhodo!!!!
+      .attr("cx", xScale(data.input))
+      .attr("cy", yScale(data.func(data.input)));
+
+    // update data.output
+    setOutput(data.func(data.input));
+  }, [data.input]); // Depend only on data.input (passed from parent)
 
   useEffect(() => {
     const svg = d3.select(svgRef.current).attr("cursor", "pointer");
@@ -65,9 +81,9 @@ const GraphNode = ({ data }) => {
       .attr("transform", `translate(${width / 2},0)`)
       .call(yAxis);
 
-    // Generate data points for the tanh function
-    const data = d3.range(-6, 6, 0.1).map(function (x) {
-      return { x: x, y: tanh(x) };
+    // Generate data points for the activation function
+    const dataPoints = d3.range(-6, 6, 0.1).map(function (x) {
+      return { x: x, y: data.func(x) };
     });
 
     const line = d3
@@ -75,20 +91,20 @@ const GraphNode = ({ data }) => {
       .x((d) => xScale(d.x))
       .y((d) => yScale(d.y));
 
-    // Draw the tanh graph
+    // Draw the activation graph
     graph
       .append("path")
-      .datum(data)
+      .datum(dataPoints)
       .attr("fill", "none")
       .attr("stroke", "steelblue")
       .attr("stroke-width", 2)
       .attr("d", line);
 
-    // Create a draggable circle on the tanh curve
+    // Create a draggable circle on the activation curve
     const circle = graph
       .append("circle")
-      .attr("cx", xScale(sum))
-      .attr("cy", yScale(tanh(sum)))
+      .attr("cx", xScale(input))
+      .attr("cy", yScale(data.func(input)))
       .attr("r", 5)
       .attr("fill", "red")
       .call(drag());
@@ -103,7 +119,7 @@ const GraphNode = ({ data }) => {
         const xValue = xScale.invert(event.x);
         d3.select(this)
           .attr("cx", event.x)
-          .attr("cy", yScale(tanh(xValue)));
+          .attr("cy", yScale(data.func(xValue)));
       }
 
       function dragended(event, d) {

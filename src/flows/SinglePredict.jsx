@@ -23,8 +23,9 @@ import GraphNode from "../components/GraphNode.jsx";
 import ButtonNode from "../components/ButtonNode.jsx";
 import FaceNode from "../components/FaceNode.jsx";
 import SumNode from "../components/SumNode.jsx";
+import BiasNode from "../components/BiasNode.jsx";
 import Edge from "../components/Edge.jsx";
-import { drag, text } from "d3";
+import { drag, map, text } from "d3";
 
 const nodeTypes = {
   InputField: InputField,
@@ -36,6 +37,7 @@ const nodeTypes = {
   ButtonNode: ButtonNode,
   FaceNode: FaceNode,
   SumNode: SumNode,
+  BiasNode: BiasNode,
 };
 
 const edgeTypes = {
@@ -72,6 +74,29 @@ const SinglePredict = ({}) => {
   const [selectedData, setSelectedData] = useState(0);
   const [comingData, setComingData] = useState(null);
   const [comingIdx, setComingIdx] = useState(null);
+  const [glowingEle, setGlowingEle] = useState(null);
+
+  // activation functions
+  function tanh(x) {
+    return (Math.exp(2 * x) - 1) / (Math.exp(2 * x) + 1);
+  }
+
+  //prediction map
+  const [mapUnits, setMapUnits] = useState(20);
+  const [mapArray, setMapArray] = useState(initMapArray());
+  function initMapArray() {
+    const mapArray = [];
+    for (let i = -1; i < 1; i += 2 / mapUnits) {
+      const row = [];
+      for (let j = 1; j > -1; j -= 2 / mapUnits) {
+        row.push([i, j]);
+      }
+      mapArray.push(row);
+    }
+    // console.log("mapArray:", mapArray);
+    return mapArray;
+  }
+  const [mapPredictions, setMapPredictions] = useState([[]]); // Ensure it's a 2D array!
 
   // backend neural network
   const [inOutNN, setInOutNN] = useState(new MLP(2, [1]));
@@ -94,6 +119,16 @@ const SinglePredict = ({}) => {
     const loss = mean_squared_error(targetArr, predArr);
     // console.log("loss:", loss.data);
     setLoss(loss);
+
+    // update the prediction map
+    const mapPred = mapArray.map((row) =>
+      row.map((point) => {
+        const pred = inOutNN.forward(point);
+        return pred.data.toFixed(1);
+      })
+    );
+    // console.log("mapPred:", mapPred);
+    setMapPredictions(mapPred);
   };
 
   const handleTrain = () => {
@@ -127,10 +162,11 @@ const SinglePredict = ({}) => {
       }))
     );
     const updatedData = { size: inOutNN.sz, layers: layers };
-    console.log("updatedData: ", updatedData);
+    // console.log("updatedData: ", updatedData);
     return updatedData;
   }
 
+  // re-render nodes and edges
   useEffect(() => {
     const newNodes = [
       {
@@ -140,6 +176,8 @@ const SinglePredict = ({}) => {
           targets: targets,
           selectedData: selectedData,
           onSelect: onSelect,
+          mapUnits: mapUnits,
+          mapPredictions: mapPredictions,
         },
         position: {
           x: 100,
@@ -149,10 +187,11 @@ const SinglePredict = ({}) => {
         draggable: false,
       },
       {
-        id: "input1",
+        id: "i1",
         data: {
           value: inputs[selectedData][0], // Change based on selectedData
           selectedData: selectedData,
+          glowingEle: glowingEle,
           onValueChange: onValueChange,
           text: "Size",
           draggable: false,
@@ -165,9 +204,11 @@ const SinglePredict = ({}) => {
         draggable: false,
       },
       {
-        id: "input2",
+        id: "i2",
         data: {
           value: inputs[selectedData][1], // Change based on selectedData
+          selectedData: selectedData,
+          glowingEle: glowingEle,
           onValueChange: onValueChange,
           text: "Color",
           draggable: false,
@@ -180,12 +221,24 @@ const SinglePredict = ({}) => {
         draggable: false,
       },
       {
-        id: "sum",
+        id: "dumb",
+        position: {
+          x: 400,
+          y: 380,
+        },
+        type: "BiasNode",
+        draggable: false,
+      },
+
+      {
+        id: "n11s",
         data: {
           sum: inOutNN.layers[0].neurons[0].sum.data,
+          inputs: inputs[selectedData],
           weights: inOutNN.layers[0].neurons[0].w.map((w) => w.data),
           bias: inOutNN.layers[0].neurons[0].b.data,
           onBiasChange: onBiasChange,
+          onParamHover: onParamHover,
         },
         position: {
           x: 610,
@@ -195,10 +248,11 @@ const SinglePredict = ({}) => {
         draggable: false,
       },
       {
-        id: "activation",
+        id: "n11a",
         data: {
-          sum: inOutNN.layers[0].neurons[0].sum.data,
-          out: inOutNN.layers[0].neurons[0].out.data,
+          input: inOutNN.layers[0].neurons[0].sum.data,
+          output: inOutNN.layers[0].neurons[0].out.data,
+          func: tanh,
           text: "Activation",
           draggable: false,
         },
@@ -250,27 +304,13 @@ const SinglePredict = ({}) => {
         type: "FaceNode",
         draggable: false,
       },
-      // shouldn't be a trainable option
-      //   {
-      //     id: "train",
-      //     data: {
-      //       handleClick: handleTrain,
-      //       text: "Train",
-      //     },
-      //     position: {
-      //       x: 650,
-      //       y: 30,
-      //     },
-      //     type: "ButtonNode",
-      //     draggable: false,
-      //   },
     ];
 
     const newEdges = [
       {
-        id: "edge1",
-        source: "input1",
-        target: "sum",
+        id: "n11w1",
+        source: "i1",
+        target: "n11s",
         type: "edge",
         data: {
           value: inOutNN.layers[0].neurons[0].w[0].data.toFixed(2),
@@ -280,9 +320,9 @@ const SinglePredict = ({}) => {
         },
       },
       {
-        id: "edge2",
-        source: "input2",
-        target: "sum",
+        id: "n11w2",
+        source: "i2",
+        target: "n11s",
         type: "edge",
         data: {
           value: inOutNN.layers[0].neurons[0].w[1].data.toFixed(2),
@@ -292,29 +332,40 @@ const SinglePredict = ({}) => {
         },
       },
       {
-        id: "edge3",
-        source: "sum",
-        target: "activation",
+        id: "n11b",
+        source: "n11dumb",
+        target: "n11s",
+        type: "edge",
+        data: {
+          value: inOutNN.layers[0].neurons[0].b.data.toFixed(2),
+          isHovered: false,
+          onWeightIncrease: onWeightIncrease,
+          onWeightDecrease: onWeightDecrease,
+        },
+      },
+      {
+        id: "s-a",
+        source: "n11s",
+        target: "n11a",
         animated: true,
       },
       {
-        id: "edge4",
-        source: "sum",
-        target: "activation",
-        animated: true,
+        id: "a-p",
+        source: "n11a",
+        target: "prediction",
+        animated: false,
       },
       {
-        id: "edge5",
-        source: "activation",
+        id: "p-t",
+        source: "prediction",
         target: "target",
         animated: false,
       },
     ];
 
-    // console.log("newNodes:", newNodes);
     setNodes(newNodes); // Set the new nodes to trigger re-render
     setEdges(newEdges);
-  }, [selectedData, inputs, prediction, nnData]); // Add dependencies
+  }, [selectedData, inputs, prediction, nnData, mapPredictions, glowingEle]); // Add dependencies
 
   useEffect(() => {
     const newInputs = [...inputs];
@@ -382,57 +433,51 @@ const SinglePredict = ({}) => {
   };
 
   const onWeightIncrease = (id) => {
-    // console.log("Increase value of edge with id: ", id);
-    // console.log(
-    //   "Current value: ",
-    //   edges.find((edge) => edge.id === id).data.value
-    // );
-    // directly update the inOutNN weights
-    if (id === "edge1") {
-      inOutNN.layers[0].neurons[0].w[0].data += weightStep;
-    } else if (id === "edge2") {
-      inOutNN.layers[0].neurons[0].w[1].data += weightStep;
+    let param;
+    if (id.includes("w")) {
+      // weight
+      param = inOutNN.layers[id[1] - 1].neurons[id[2] - 1].w[id[4] - 1];
+    } else if (id.includes("b")) {
+      // bias
+      param = inOutNN.layers[id[1] - 1].neurons[id[2] - 1].b;
+    }
+    param.data += weightStep;
+    // limit to [-1,1]
+    if (param.data > 1) {
+      param.data = 1;
     }
 
-    // limit to [-1,1]
-    if (inOutNN.layers[0].neurons[0].w[0].data > 1) {
-      inOutNN.layers[0].neurons[0].w[0].data = 1;
-    }
-    if (inOutNN.layers[0].neurons[0].w[1].data > 1) {
-      inOutNN.layers[0].neurons[0].w[1].data = 1;
-    }
     setNnData(updateNodeData());
     handleFeed(selectedData); // remember to update the prediction after changing the weights!
   };
 
   const onWeightDecrease = (id) => {
-    // console.log("Decrease value of edge with id: ", id);
-    // console.log(
-    //   "Current value: ",
-    //   edges.find((edge) => edge.id === id).data.value
-    // );
-    // directly update the inOutNN weights
-    if (id === "edge1") {
-      inOutNN.layers[0].neurons[0].w[0].data -= weightStep;
-    } else if (id === "edge2") {
-      inOutNN.layers[0].neurons[0].w[1].data -= weightStep;
+    let param;
+    if (id.includes("w")) {
+      // weight
+      param = inOutNN.layers[id[1] - 1].neurons[id[2] - 1].w[id[4] - 1];
+    } else if (id.includes("b")) {
+      // bias
+      param = inOutNN.layers[id[1] - 1].neurons[id[2] - 1].b;
     }
-
+    param.data -= weightStep;
     // limit to [-1,1]
-    if (inOutNN.layers[0].neurons[0].w[0].data < -1) {
-      inOutNN.layers[0].neurons[0].w[0].data = -1;
-    }
-    if (inOutNN.layers[0].neurons[0].w[1].data < -1) {
-      inOutNN.layers[0].neurons[0].w[1].data = -1;
+    if (param.data < -1) {
+      param.data = -1;
     }
     setNnData(updateNodeData());
     handleFeed(selectedData);
   };
 
+  const onParamHover = (id) => {
+    console.log("onParamHover: ", id);
+    setGlowingEle(id);
+  };
+
   return (
     <>
       <ReactFlowProvider>
-        <div style={{ height: "400px", width: "1250px" }}>
+        <div style={{ height: "450px", width: "1250px" }}>
           <ReactFlow
             nodes={nodes}
             edges={edges}

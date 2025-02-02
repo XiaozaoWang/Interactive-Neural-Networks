@@ -7,6 +7,7 @@ import { tw } from "twind";
 import NN from "./flows/NN";
 import InOut from "./flows/InOut";
 import SinglePredict from "./flows/SinglePredict";
+import Activation from "./flows/Activation";
 
 import dogImage from "./images/dogs.jpg";
 import frustration from "./images/frustration.png";
@@ -381,6 +382,9 @@ const App = () => {
             <div className={tw`flex justify-center items-center`}>
               <SinglePredict />
             </div>
+            <div className={tw`flex justify-center items-center`}>
+              <Activation />
+            </div>
           </>
         }
       />
@@ -452,7 +456,7 @@ const App = () => {
                 height: "400px",
               }}
             >
-              <NN nnData={nnData} lastInputData={lastInputData} />
+              {/* <NN nnData={nnData} lastInputData={lastInputData} /> */}
             </div>
           </>
         }

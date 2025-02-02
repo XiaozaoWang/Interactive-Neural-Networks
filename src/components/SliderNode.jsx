@@ -18,7 +18,9 @@ const SliderNode = ({ id, data, isConnectable }) => {
   const scale = d3.scaleLinear().domain([-1, 1]).range([0, 100]);
   const [height, setHeight] = useState(scale(nodeValue)); // Keep track of the current height
   const [isDragging, setIsDragging] = useState(false);
-  const [selectedData, setSelectedData] = useState(data.selectedData);
+  const [selectedData, setSelectedData] = useState(data.selectedData || null);
+  const [isGlowing, setIsGlowing] = useState(true);
+
   const draggable = data.draggable;
 
   // 1. Update the graph when data.value changes
@@ -28,7 +30,8 @@ const SliderNode = ({ id, data, isConnectable }) => {
     svg
       .select("rect.handle")
       .transition()
-      .duration(isDragging ? 0 : 200)
+      // .duration(isDragging ? 0 : 200)
+      .duration(0)
       .attr(
         "y",
         sliderHeight - scale(data.value) + marginVertical - handleHeight / 2
@@ -38,7 +41,8 @@ const SliderNode = ({ id, data, isConnectable }) => {
     svg
       .select("rect.progress")
       .transition()
-      .duration(isDragging ? 0 : 200)
+      // .duration(isDragging ? 0 : 200)
+      .duration(0)
       .attr("y", sliderHeight - scale(data.value) + marginVertical)
       .attr("height", scale(data.value));
 
@@ -47,7 +51,8 @@ const SliderNode = ({ id, data, isConnectable }) => {
     svg
       .select("text.value")
       .transition()
-      .duration(isDragging ? 0 : 200)
+      // .duration(isDragging ? 0 : 200)
+      .duration(0)
       .attr("y", sliderHeight - scale(data.value) + marginVertical)
       .text(data.value.toFixed(1));
   }, [data.value]); // Depend only on data.value (passed from parent)
@@ -110,25 +115,6 @@ const SliderNode = ({ id, data, isConnectable }) => {
         .text(data.text);
     }
 
-    // lower and upper bounds of the slider
-    // let lowerText = svg
-    //   .append("text")
-    //   .attr("x", nodeWidth / 2)
-    //   .attr("y", sliderHeight + marginVertical + marginVertical / 2)
-    //   .attr("text-anchor", "middle")
-    //   .attr("dominant-baseline", "middle")
-    //   .attr("font-size", "12px")
-    //   .text("0");
-
-    // let upperText = svg
-    //   .append("text")
-    //   .attr("x", nodeWidth / 2)
-    //   .attr("y", marginVertical / 2)
-    //   .attr("text-anchor", "middle")
-    //   .attr("dominant-baseline", "middle")
-    //   .attr("font-size", "12px")
-    //   .text("1");
-
     // Value
     let valueText = svg.select("text.value");
     if (valueText.empty()) {
@@ -168,8 +154,22 @@ const SliderNode = ({ id, data, isConnectable }) => {
     }
   }, [height, data]); // Depend on height for initial rendering and dragging
 
+  useEffect(() => {
+    if (data.glowingEle === id) {
+      setIsGlowing(true);
+    } else {
+      setIsGlowing(false);
+    }
+  }, [data.glowingEle]);
+
   return (
-    <>
+    <div
+      className={tw`
+        relative rounded-md transition-shadow`}
+      style={
+        isGlowing ? { boxShadow: "0 0 8px 4px rgba(255, 208, 0, 0.3)" } : {}
+      }
+    >
       <Handle
         type="target"
         position={Position.Left}
@@ -187,7 +187,7 @@ const SliderNode = ({ id, data, isConnectable }) => {
         isConnectable={isConnectable}
         className={tw`w-2 h-2 bg-blue-400`}
       />
-    </>
+    </div>
   );
 };
 
