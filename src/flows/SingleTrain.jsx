@@ -46,7 +46,7 @@ const edgeTypes = {
   NormalEdge: NormalEdge,
 };
 
-const SinglePredict = ({}) => {
+export default function SingleTrain() {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
@@ -514,6 +514,4 @@ const SinglePredict = ({}) => {
       </ReactFlowProvider>
     </>
   );
-};
-
-export default SinglePredict;
+}

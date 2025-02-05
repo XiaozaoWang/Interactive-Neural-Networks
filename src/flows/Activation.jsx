@@ -23,7 +23,7 @@ import GraphNode from "../components/GraphNode.jsx";
 import ButtonNode from "../components/ButtonNode.jsx";
 import FaceNode from "../components/FaceNode.jsx";
 import SumNode from "../components/SumNode.jsx";
-import Edge from "../components/Edge.jsx";
+import ParamEdge from "../components/ParamEdge.jsx";
 import { drag, text } from "d3";
 
 const nodeTypes = {
@@ -39,7 +39,7 @@ const nodeTypes = {
 };
 
 const edgeTypes = {
-  edge: Edge,
+  ParamEdge: ParamEdge,
 };
 
 const SinglePredict = ({}) => {

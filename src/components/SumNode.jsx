@@ -23,6 +23,7 @@ const SumNode = ({ id, data, isConnectable }) => {
   const [toggleEquation, setToggleEquation] = useState(false);
   const [highlightedId, setHighlightedId] = useState(null);
   const [equation, setEquation] = useState("");
+  const [isGlowing, setIsGlowing] = useState(true);
 
   // Update the graph when data.value changes
   useEffect(() => {
@@ -37,18 +38,27 @@ const SumNode = ({ id, data, isConnectable }) => {
       .attr("height", scale(data.sum));
   }, [data.sum]); // Depend only on data.sum (passed from parent)
 
+  // set glowing
+  useEffect(() => {
+    if (data.glowingEle === id) {
+      setIsGlowing(true);
+    } else {
+      setIsGlowing(false);
+    }
+  }, [data.glowingEle]);
+
   function handleToggleEquation() {
     setToggleEquation(!toggleEquation);
   }
 
   const handleHover = (id) => {
     setHighlightedId(id);
-    // console.log("Hovered on:", id);
     data.onParamHover(id);
   };
 
   const handleMouseLeave = () => {
     setHighlightedId(null);
+    data.onParamHover(null);
   };
 
   // Render the SVG graphic initially and define dragging functiona
@@ -95,9 +105,12 @@ const SumNode = ({ id, data, isConnectable }) => {
   return (
     <MathJaxContext>
       <div
-        className={tw`relative`}
+        className={tw`relative rounded-md transition-shadow`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
+        style={
+          isGlowing ? { boxShadow: "0 0 8px 4px rgba(255, 208, 0, 0.3)" } : {}
+        }
       >
         <Handle
           type="target"

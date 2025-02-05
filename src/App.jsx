@@ -8,6 +8,7 @@ import NN from "./flows/NN";
 import InOut from "./flows/InOut";
 import SinglePredict from "./flows/SinglePredict";
 import Activation from "./flows/Activation";
+import SingleTrain from "./flows/SingleTrain";
 
 import dogImage from "./images/dogs.jpg";
 import frustration from "./images/frustration.png";
@@ -381,6 +382,9 @@ const App = () => {
             <br />
             <div className={tw`flex justify-center items-center`}>
               <SinglePredict />
+            </div>
+            <div className={tw`flex justify-center items-center`}>
+              <SingleTrain />
             </div>
             <div className={tw`flex justify-center items-center`}>
               <Activation />

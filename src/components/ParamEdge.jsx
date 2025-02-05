@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   BaseEdge,
   EdgeLabelRenderer,
@@ -9,9 +9,7 @@ import {
 import { FaCaretUp, FaCaretDown } from "react-icons/fa";
 import { tw } from "twind";
 
-// import "./edge.css";
-
-export default function Edge({
+export default function ParamEdge({
   id,
   sourceX,
   sourceY,
@@ -23,7 +21,6 @@ export default function Edge({
   data,
 }) {
   //   const { setEdges } = useReactFlow(); // Accessing parent flow, 之后研究
-  const [isHovered, setIsHovered] = useState(false);
   const [edgePath, labelX, labelY] = getBezierPath({
     sourceX,
     sourceY,
@@ -33,32 +30,37 @@ export default function Edge({
     targetPosition,
   });
 
+  const [isHovered, setIsHovered] = useState(false);
+  const [isGlowing, setIsGlowing] = useState(true);
+
   let edgeStyle = {};
   if (data.value > 0) {
     edgeStyle = {
-      // stroke: data?.isHovered ? "blue" : "black", // Example of changing the stroke color
-      // strokeWidth: 3, // Example of changing the stroke width
       stroke: data?.isHovered ? "#6dd2f3" : "#aedfef",
       strokeWidth: 0.5 + data.value * 4,
+      filter: isGlowing
+        ? "drop-shadow(0px 0px 3px rgba(255, 208, 0, 1))"
+        : "none",
       ...style,
     };
   } else {
     edgeStyle = {
-      // stroke: data?.isHovered ? "blue" : "black", // Example of changing the stroke color
-      // strokeWidth: 3, // Example of changing the stroke width
       stroke: data?.isHovered ? "#f78574" : "#f6b4aa",
       strokeWidth: 0.5 + Math.abs(data.value) * 4,
+      filter: isGlowing
+        ? "drop-shadow(0px 0px 3px rgba(255, 208, 0, 1))"
+        : "none",
       ...style,
     };
   }
 
-  // const onIncrease = (id) => {
-  //   console.log("Increase value of edge with id: ", id);
-  // };
-
-  // const onDecrease = (id) => {
-  //   console.log("Decrease value of edge with id: ", id);
-  // };
+  useEffect(() => {
+    if (data.glowingEle === id) {
+      setIsGlowing(true);
+    } else {
+      setIsGlowing(false);
+    }
+  }, [data.glowingEle]);
 
   return (
     <>

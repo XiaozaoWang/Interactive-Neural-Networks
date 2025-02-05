@@ -3,7 +3,7 @@ import { Handle, Position } from "@xyflow/react";
 import { tw } from "twind";
 import * as d3 from "d3";
 
-const GraphNode = ({ data }) => {
+const GraphNode = ({ id, data }) => {
   const svgRef = useRef(null);
 
   const nodeWidth = 150;
@@ -15,27 +15,11 @@ const GraphNode = ({ data }) => {
   const xScale = d3.scaleLinear().domain([-3, 3]).range([0, width]);
   const yScale = d3.scaleLinear().domain([-1, 1]).range([height, 0]);
 
-  // Define the functions
-  // function tanh(x) {
-  //   return (Math.exp(2 * x) - 1) / (Math.exp(2 * x) + 1);
-  // }
-
-  // function step(x) {
-  //   return x > 0 ? 1 : 0;
-  // }
-
-  // function activation(x) {
-  //   if (data.function === "tanh") {
-  //     return tanh(x);
-  //   } else if (data.function === "step") {
-  //     return step(x);
-  //   }
-  // }
-
   const input = data.input;
   const [output, setOutput] = useState(data.output);
   const [isDragging, setIsDragging] = useState(false);
   const draggable = data.draggable ? data.draggable : false;
+  const [isGlowing, setIsGlowing] = useState(true);
 
   useEffect(() => {
     const svg = d3.select(svgRef.current);
@@ -51,6 +35,15 @@ const GraphNode = ({ data }) => {
     // update data.output
     setOutput(data.func(data.input));
   }, [data.input]); // Depend only on data.input (passed from parent)
+
+  // set glowing
+  useEffect(() => {
+    if (data.glowingEle === id) {
+      setIsGlowing(true);
+    } else {
+      setIsGlowing(false);
+    }
+  }, [data.glowingEle]);
 
   useEffect(() => {
     const svg = d3.select(svgRef.current).attr("cursor", "pointer");
@@ -136,7 +129,10 @@ const GraphNode = ({ data }) => {
 
   return (
     <div
-      className={tw`w-[${nodeWidth}px] h-[${nodeHeight}px] p-0 m-0 bg-gray-100 border border-gray-300 rounded-md`}
+      className={tw`w-[${nodeWidth}px] h-[${nodeHeight}px] p-0 m-0 bg-gray-100 border border-gray-300 rounded-md transition-shadow`}
+      style={
+        isGlowing ? { boxShadow: "0 0 8px 4px rgba(255, 208, 0, 0.3)" } : {}
+      }
     >
       <Handle
         type="target"

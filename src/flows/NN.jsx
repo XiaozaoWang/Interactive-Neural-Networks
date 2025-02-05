@@ -16,7 +16,7 @@ import "@xyflow/react/dist/style.css";
 import Node from "../components/Node.jsx";
 import DragNode from "../components/DragNode.jsx";
 import GraphNode from "../components/GraphNode.jsx";
-import Edge from "../components/Edge.jsx";
+import ParamEdge from "../components/ParamEdge.jsx";
 
 const nodeTypes = {
   node: Node,
@@ -25,7 +25,7 @@ const nodeTypes = {
 };
 
 const edgeTypes = {
-  edge: Edge,
+  ParamEdge: ParamEdge,
 };
 
 const NN = ({ nnData, lastInputData }) => {
@@ -120,7 +120,7 @@ const NN = ({ nnData, lastInputData }) => {
                   id: edgeId,
                   source: inputNodeId,
                   target: currentNodeId,
-                  type: "edge",
+                  type: "ParamEdge",
                   data: {
                     value: val,
                     isHovered: false,
@@ -139,7 +139,7 @@ const NN = ({ nnData, lastInputData }) => {
                   id: edgeId,
                   source: prevNodeId,
                   target: currentNodeId,
-                  type: "edge",
+                  type: "ParamEdge",
                   data: {
                     value: val,
                     isHovered: false,

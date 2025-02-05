@@ -27,6 +27,14 @@ const SliderNode = ({ id, data, isConnectable }) => {
   useEffect(() => {
     const svg = d3.select(svgRef.current);
     // 1. Transition the draggable handle to the new y position
+
+    svg
+      .select("rect.target")
+      .attr(
+        "y",
+        sliderHeight - scale(data.target) + marginVertical - handleHeight / 2
+      );
+
     svg
       .select("rect.handle")
       .transition()
@@ -61,6 +69,8 @@ const SliderNode = ({ id, data, isConnectable }) => {
   useEffect(() => {
     const svg = d3.select(svgRef.current);
 
+    // console.log("Rendering slider node", id, data);
+
     // Slider
     let rect = svg.select("rect.slider");
     if (rect.empty()) {
@@ -87,6 +97,22 @@ const SliderNode = ({ id, data, isConnectable }) => {
         .attr("width", sliderWidth)
         .attr("height", height)
         .attr("fill", "#EEEEEE");
+    }
+
+    // target
+    let target = svg.select("rect.target");
+    if (target.empty() && data.target) {
+      target = svg
+        .append("rect")
+        .attr("class", "target")
+        .attr("x", marginHorizontal - (handleWidth - sliderWidth) / 2)
+        .attr(
+          "y",
+          sliderHeight - scale(data.target) + marginVertical - handleHeight / 2
+        )
+        .attr("width", handleWidth)
+        .attr("height", handleHeight)
+        .attr("fill", "#77B254");
     }
 
     // Draggable handle (dragged function defined below)
@@ -127,6 +153,33 @@ const SliderNode = ({ id, data, isConnectable }) => {
         .attr("dominant-baseline", "middle")
         .attr("font-size", "12px")
         .text(data.value.toFixed(1));
+    }
+
+    // target value
+    let targetTextTop = svg.select("text.target");
+    if (targetTextTop.empty() && data.target) {
+      targetTextTop = svg
+        .append("text")
+        .attr("class", "target")
+        .attr("x", marginHorizontal + sliderWidth + marginHorizontal / 2)
+        .attr("y", marginVertical)
+        .attr("text-anchor", "middle")
+        .attr("dominant-baseline", "middle")
+        .attr("font-size", "12px")
+        .text("1");
+    }
+
+    let targetTextBottom = svg.select("text.target2");
+    if (targetTextBottom.empty() && data.target) {
+      targetTextBottom = svg
+        .append("text")
+        .attr("class", "target2")
+        .attr("x", marginHorizontal + sliderWidth + marginHorizontal / 2)
+        .attr("y", marginVertical + sliderHeight)
+        .attr("text-anchor", "middle")
+        .attr("dominant-baseline", "middle")
+        .attr("font-size", "12px")
+        .text("-1");
     }
 
     function dragged(event) {
