@@ -24,6 +24,7 @@ import ButtonNode from "../components/ButtonNode.jsx";
 import FaceNode from "../components/FaceNode.jsx";
 import SumNode from "../components/SumNode.jsx";
 import BiasNode from "../components/BiasNode.jsx";
+import LrNode from "../components/LrNode.jsx";
 import ParamEdge from "../components/ParamEdge.jsx";
 import NormalEdge from "../components/NormalEdge.jsx";
 import { drag, map, text } from "d3";
@@ -39,6 +40,7 @@ const nodeTypes = {
   FaceNode: FaceNode,
   SumNode: SumNode,
   BiasNode: BiasNode,
+  LrNode: LrNode,
 };
 
 const edgeTypes = {
@@ -47,6 +49,8 @@ const edgeTypes = {
 };
 
 export default function SingleTrain() {
+  const datumX = 100;
+  const datumY = 180;
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
@@ -110,6 +114,7 @@ export default function SingleTrain() {
   const handleFeed = (selected) => {
     // console.log("selected:", selected);
     // console.log("inputs:", inputs[selected]);
+    // console.log("nnData1:", nnData);
     const pred = inOutNN.forward(inputs[selected]);
     // console.log("prediction:", pred.data);
     setPrediction(pred.data.toFixed(2));
@@ -133,7 +138,7 @@ export default function SingleTrain() {
     setMapPredictions(mapPred);
   };
 
-  const handleTrain = () => {
+  const handleStep = () => {
     handleFeed(selectedData); // sets a new Loss Value every time to prevent error in gradient update
     // zero out grads
     for (let p of inOutNN.parameters()) {
@@ -145,7 +150,17 @@ export default function SingleTrain() {
     }
 
     setNnData(updateNodeData()); // [!] every time nnData is reset using "setNnData", the child components that takes in nnData will re-render
-    // console.log("nnData:", nnData);
+    console.log("nnData2:", nnData);
+  };
+
+  const handleTrain = () => {
+    let steps = 10;
+    const trainStep = (i) => {
+      if (i >= steps) return; // Stop after 10 steps
+      handleStep(); // Run one step
+      setTimeout(() => trainStep(i + 1), 0); // Allow React to update state
+    };
+    trainStep(0);
   };
 
   // initialization: Set the initial node data, feed and predict the default data point
@@ -182,8 +197,8 @@ export default function SingleTrain() {
           mapPredictions: mapPredictions,
         },
         position: {
-          x: 100,
-          y: 30,
+          x: datumX,
+          y: datumY,
         },
         type: "InputField",
         draggable: false,
@@ -199,8 +214,8 @@ export default function SingleTrain() {
           draggable: false,
         },
         position: {
-          x: 400,
-          y: 30,
+          x: datumX + 300,
+          y: datumY,
         },
         type: "SliderNode",
         draggable: false,
@@ -216,8 +231,8 @@ export default function SingleTrain() {
           draggable: false,
         },
         position: {
-          x: 400,
-          y: 200,
+          x: datumX + 300,
+          y: datumY + 170,
         },
         type: "SliderNode",
         draggable: false,
@@ -225,8 +240,8 @@ export default function SingleTrain() {
       {
         id: "dumb",
         position: {
-          x: 400,
-          y: 380,
+          x: datumX + 300,
+          y: datumY + 350,
         },
         type: "BiasNode",
         draggable: false,
@@ -244,8 +259,8 @@ export default function SingleTrain() {
           onParamHover: onParamHover,
         },
         position: {
-          x: 610,
-          y: 120,
+          x: datumX + 510,
+          y: datumY + 90,
         },
         type: "SumNode",
         draggable: false,
@@ -261,8 +276,8 @@ export default function SingleTrain() {
           draggable: false,
         },
         position: {
-          x: 670,
-          y: 110,
+          x: datumX + 570,
+          y: datumY + 80,
         },
         type: "GraphNode",
         draggable: false,
@@ -276,8 +291,8 @@ export default function SingleTrain() {
           text: "Prediction",
         },
         position: {
-          x: 900,
-          y: 110,
+          x: datumX + 800,
+          y: datumY + 80,
         },
         type: "SliderNode",
         draggable: false,
@@ -291,8 +306,8 @@ export default function SingleTrain() {
           grayscale: 50, // doesn't look good
         },
         position: {
-          x: 1050,
-          y: 110,
+          x: datumX + 950,
+          y: datumY + 80,
         },
         type: "SliderNode",
         draggable: false,
@@ -303,10 +318,50 @@ export default function SingleTrain() {
           value: Math.abs(Number(prediction) - targets[selectedData]), // Change based on selectedData
         },
         position: {
-          x: 990,
-          y: 165,
+          x: datumX + 890,
+          y: datumY + 135,
         },
         type: "FaceNode",
+        draggable: false,
+      },
+      {
+        id: "step-button",
+        data: {
+          text: "Step",
+          handleClick: handleStep,
+        },
+        position: {
+          x: datumX,
+          y: 50,
+        },
+        type: "ButtonNode",
+        draggable: false,
+      },
+      {
+        id: "train-button",
+        data: {
+          text: "Train",
+          handleClick: handleTrain,
+        },
+        position: {
+          x: datumX + 80,
+          y: 50,
+        },
+        type: "ButtonNode",
+        draggable: false,
+      },
+      {
+        id: "lr",
+        data: {
+          handleClick: (lr) => {
+            console.log("lr:", lr);
+          },
+        },
+        position: {
+          x: datumX + 160,
+          y: 50,
+        },
+        type: "LrNode",
         draggable: false,
       },
     ];
@@ -488,7 +543,7 @@ export default function SingleTrain() {
   return (
     <>
       <ReactFlowProvider>
-        <div style={{ height: "450px", width: "1250px" }}>
+        <div style={{ height: "600px", width: "1250px" }}>
           <ReactFlow
             nodes={nodes}
             edges={edges}

@@ -47,6 +47,8 @@ const edgeTypes = {
 };
 
 const SinglePredict = ({}) => {
+  const datumX = 100;
+  const datumY = 30;
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
@@ -182,8 +184,8 @@ const SinglePredict = ({}) => {
           mapPredictions: mapPredictions,
         },
         position: {
-          x: 100,
-          y: 30,
+          x: datumX,
+          y: datumY,
         },
         type: "InputField",
         draggable: false,
@@ -199,8 +201,8 @@ const SinglePredict = ({}) => {
           draggable: false,
         },
         position: {
-          x: 400,
-          y: 30,
+          x: datumX + 300,
+          y: datumY,
         },
         type: "SliderNode",
         draggable: false,
@@ -216,8 +218,8 @@ const SinglePredict = ({}) => {
           draggable: false,
         },
         position: {
-          x: 400,
-          y: 200,
+          x: datumX + 300,
+          y: datumY + 170,
         },
         type: "SliderNode",
         draggable: false,
@@ -225,8 +227,8 @@ const SinglePredict = ({}) => {
       {
         id: "dumb",
         position: {
-          x: 400,
-          y: 380,
+          x: datumX + 300,
+          y: datumY + 350,
         },
         type: "BiasNode",
         draggable: false,
@@ -244,8 +246,8 @@ const SinglePredict = ({}) => {
           onParamHover: onParamHover,
         },
         position: {
-          x: 610,
-          y: 120,
+          x: datumX + 510,
+          y: datumY + 90,
         },
         type: "SumNode",
         draggable: false,
@@ -261,8 +263,8 @@ const SinglePredict = ({}) => {
           draggable: false,
         },
         position: {
-          x: 670,
-          y: 110,
+          x: datumX + 570,
+          y: datumY + 80,
         },
         type: "GraphNode",
         draggable: false,
@@ -276,8 +278,8 @@ const SinglePredict = ({}) => {
           text: "Prediction",
         },
         position: {
-          x: 900,
-          y: 110,
+          x: datumX + 800,
+          y: datumY + 80,
         },
         type: "SliderNode",
         draggable: false,
@@ -291,8 +293,8 @@ const SinglePredict = ({}) => {
           grayscale: 50, // doesn't look good
         },
         position: {
-          x: 1050,
-          y: 110,
+          x: datumX + 950,
+          y: datumY + 80,
         },
         type: "SliderNode",
         draggable: false,
@@ -303,8 +305,8 @@ const SinglePredict = ({}) => {
           value: Math.abs(Number(prediction) - targets[selectedData]), // Change based on selectedData
         },
         position: {
-          x: 990,
-          y: 165,
+          x: datumX + 890,
+          y: datumY + 135,
         },
         type: "FaceNode",
         draggable: false,
