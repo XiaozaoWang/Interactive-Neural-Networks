@@ -78,7 +78,7 @@ const SinglePredict = ({}) => {
   const [selectedData, setSelectedData] = useState(0);
   const [comingData, setComingData] = useState(null);
   const [comingIdx, setComingIdx] = useState(null);
-  const [glowingEle, setGlowingEle] = useState(null);
+  const [glowingEle, setGlowingEle] = useState([]);
 
   // activation functions
   function tanh(x) {

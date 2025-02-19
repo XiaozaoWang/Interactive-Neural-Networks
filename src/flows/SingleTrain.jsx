@@ -25,6 +25,7 @@ import FaceNode from "../components/FaceNode.jsx";
 import SumNode from "../components/SumNode.jsx";
 import BiasNode from "../components/BiasNode.jsx";
 import LrNode from "../components/LrNode.jsx";
+import FormulaNode from "../components/FormulaNode.jsx";
 import ParamEdge from "../components/ParamEdge.jsx";
 import NormalEdge from "../components/NormalEdge.jsx";
 import { drag, map, text } from "d3";
@@ -41,6 +42,7 @@ const nodeTypes = {
   SumNode: SumNode,
   BiasNode: BiasNode,
   LrNode: LrNode,
+  FormulaNode: FormulaNode,
 };
 
 const edgeTypes = {
@@ -80,7 +82,8 @@ export default function SingleTrain() {
   const [selectedData, setSelectedData] = useState(0);
   const [comingData, setComingData] = useState(null);
   const [comingIdx, setComingIdx] = useState(null);
-  const [glowingEle, setGlowingEle] = useState(null);
+  const [glowingEle, setGlowingEle] = useState([]);
+  const [formulaOn, setFormulaOn] = useState(false);
 
   // activation functions
   function tanh(x) {
@@ -109,6 +112,7 @@ export default function SingleTrain() {
   const [prediction, setPrediction] = useState(-1); // plain numbers
   const [loss, setLoss] = useState(new Value(0));
   const [nnData, setNnData] = useState([]);
+  const [prevNNData, setPrevNNData] = useState(null);
   const weightStep = 0.1;
 
   const handleFeed = (selected) => {
@@ -139,6 +143,7 @@ export default function SingleTrain() {
   };
 
   const handleStep = () => {
+    setPrevNNData(nnData);
     handleFeed(selectedData); // sets a new Loss Value every time to prevent error in gradient update
     // zero out grads
     for (let p of inOutNN.parameters()) {
@@ -154,13 +159,9 @@ export default function SingleTrain() {
   };
 
   const handleTrain = () => {
-    let steps = 10;
-    const trainStep = (i) => {
-      if (i >= steps) return; // Stop after 10 steps
-      handleStep(); // Run one step
-      setTimeout(() => trainStep(i + 1), 0); // Allow React to update state
-    };
-    trainStep(0);
+    // for (let i = 0; i < 10; i++) {
+    //   handleStep();
+    // }
   };
 
   // initialization: Set the initial node data, feed and predict the default data point
@@ -170,12 +171,15 @@ export default function SingleTrain() {
   }, []);
 
   function updateNodeData() {
+    // merge the w and b gradients into a single array
+
     const layers = inOutNN.layers.map((layer) =>
       layer.neurons.map((neuron) => ({
         weights: neuron.w.map((w) => w.data),
         bias: neuron.b.data,
         output: neuron.out.data,
-        grad: neuron.b.grad,
+        gradw: neuron.w.map((w) => w.grad),
+        gradb: neuron.b.grad,
       }))
     );
     const updatedData = { size: inOutNN.sz, layers: layers };
@@ -364,6 +368,19 @@ export default function SingleTrain() {
         type: "LrNode",
         draggable: false,
       },
+      {
+        id: "formula",
+        data: {
+          onParamHover: onParamHover,
+          formulaOn: formulaOn,
+        },
+        position: {
+          x: datumX + 260,
+          y: 50,
+        },
+        type: "FormulaNode",
+        draggable: false,
+      },
     ];
 
     const newEdges = [
@@ -373,9 +390,12 @@ export default function SingleTrain() {
         target: "n11s",
         type: "ParamEdge",
         data: {
+          nnData: nnData,
           value: inOutNN.layers[0].neurons[0].w[0].data.toFixed(2),
           isHovered: false,
+          isClicked: false,
           glowingEle: glowingEle,
+          onParamHover: onParamHover,
           onWeightIncrease: onWeightIncrease,
           onWeightDecrease: onWeightDecrease,
         },
@@ -386,9 +406,12 @@ export default function SingleTrain() {
         target: "n11s",
         type: "ParamEdge",
         data: {
+          nnData: nnData,
           value: inOutNN.layers[0].neurons[0].w[1].data.toFixed(2),
           isHovered: false,
+          isClicked: false,
           glowingEle: glowingEle,
+          onParamHover: onParamHover,
           onWeightIncrease: onWeightIncrease,
           onWeightDecrease: onWeightDecrease,
         },
@@ -399,9 +422,12 @@ export default function SingleTrain() {
         target: "n11s",
         type: "ParamEdge",
         data: {
+          nnData: nnData,
           value: inOutNN.layers[0].neurons[0].b.data.toFixed(2),
           isHovered: false,
+          isClicked: false,
           glowingEle: glowingEle,
+          onParamHover: onParamHover,
           onWeightIncrease: onWeightIncrease,
           onWeightDecrease: onWeightDecrease,
         },
@@ -431,7 +457,15 @@ export default function SingleTrain() {
 
     setNodes(newNodes); // Set the new nodes to trigger re-render
     setEdges(newEdges);
-  }, [selectedData, inputs, prediction, nnData, mapPredictions, glowingEle]); // Add dependencies
+  }, [
+    selectedData,
+    inputs,
+    prediction,
+    nnData,
+    mapPredictions,
+    glowingEle,
+    formulaOn,
+  ]); // Add dependencies
 
   useEffect(() => {
     const newInputs = [...inputs];
@@ -498,6 +532,25 @@ export default function SingleTrain() {
     );
   };
 
+  const onEdgeClick = (event, edge) => {
+    setFormulaOn(!formulaOn);
+    // const edgeId = edge.id;
+    // // Updates edge
+    // setEdges((prevElements) =>
+    //   prevElements.map((element) =>
+    //     element.id === edgeId
+    //       ? {
+    //           ...element,
+    //           data: {
+    //             ...element.data,
+    //             isClicked: !element.data.isClicked,
+    //           },
+    //         }
+    //       : element
+    //   )
+    // );
+  };
+
   const onWeightIncrease = (id) => {
     let param;
     if (id.includes("w")) {
@@ -536,7 +589,7 @@ export default function SingleTrain() {
   };
 
   const onParamHover = (id) => {
-    // console.log("onParamHover: ", id);
+    console.log("onParamHover: ", id);
     setGlowingEle(id);
   };
 
@@ -553,6 +606,7 @@ export default function SingleTrain() {
             onEdgesChange={onEdgesChange}
             onEdgeMouseEnter={onEdgeMouseEnter}
             onEdgeMouseLeave={onEdgeMouseLeave}
+            onEdgeClick={onEdgeClick}
             onConnect={onConnect}
             panOnDrag={false}
             zoomOnScroll={false}

@@ -208,6 +208,7 @@ const SliderNode = ({ id, data, isConnectable }) => {
   }, [height, data]); // Depend on height for initial rendering and dragging
 
   useEffect(() => {
+    console.log("Glowing elements", data.glowingEle);
     if (data.glowingEle === id) {
       setIsGlowing(true);
     } else {

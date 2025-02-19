@@ -365,7 +365,7 @@ const App = () => {
             </p>
             <br />
             <div className={tw`flex justify-center items-center`}>
-              <InOut />
+              {/* <InOut /> */}
             </div>
           </>
         }
@@ -381,20 +381,20 @@ const App = () => {
             </p>
             <br />
             <div className={tw`flex justify-center items-center`}>
-              <SinglePredict />
+              {/* <SinglePredict /> */}
             </div>
             <div className={tw`flex justify-center items-center`}>
               <SingleTrain />
             </div>
             <div className={tw`flex justify-center items-center`}>
-              <Activation />
+              {/* <Activation /> */}
             </div>
           </>
         }
       />
 
       <QuestionAnswer
-        state={false}
+        state={true}
         question="Full interactive Neural Network"
         answer={
           <>

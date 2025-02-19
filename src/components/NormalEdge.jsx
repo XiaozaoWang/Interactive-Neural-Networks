@@ -39,7 +39,7 @@ export default function NormalEdge({
   };
 
   //   useEffect(() => {
-  //     if (data.glowingEle === id) {
+  //     if (data.glowingEle && data.glowingEle.includes(id)) {
   //       setIsGlowing(true);
   //     } else {
   //       setIsGlowing(false);
