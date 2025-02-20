@@ -400,9 +400,9 @@ const App = () => {
         answer={
           <>
             <p className={tw`text-sm font-bold mb-4 text-center text-gray-800`}>
-              Instruction for current version: Click "Feed" to pass the input
-              data, and click "Train" multiple times to train the network. After
-              several training, the Loss value will be reduced greatly.
+              Instruction for current version: Click "Step" multiple times to
+              train the network. After several training, the Loss value will be
+              reduced significantly.
             </p>
             {/* <button
               className={tw`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none m-2`}
