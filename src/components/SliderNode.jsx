@@ -25,7 +25,7 @@ const SliderNode = ({ id, data, isConnectable }) => {
 
   // 1. Update the graph when data.value changes
   useEffect(() => {
-    console.log("slider", id, data.value);
+    // console.log("slider", id, data.value);
 
     const svg = d3.select(svgRef.current);
     // 1. Transition the draggable handle to the new y position

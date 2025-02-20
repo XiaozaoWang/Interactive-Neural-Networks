@@ -27,7 +27,7 @@ export default function OutputNode({ id, data, isConnectable }) {
 
   // Update the graph when data.value changes
   useEffect(() => {
-    console.log("sum", sum);
+    // console.log("sum", sum);
     const svg = d3.select(svgRef.current);
     // transition the progress bar to the new y position
 
@@ -114,9 +114,13 @@ export default function OutputNode({ id, data, isConnectable }) {
         className={tw`relative rounded-md transition-shadow`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        style={
-          isGlowing ? { boxShadow: "0 0 8px 4px rgba(255, 208, 0, 0.3)" } : {}
-        }
+        style={{
+          boxSizing: "border-box", // Ensures the border is inside
+          ...(isGlowing && {
+            boxShadow: "0 0 8px 4px rgba(255, 208, 0, 0.6)",
+            border: "2px solid red",
+          }),
+        }}
       >
         <Handle
           type="target"

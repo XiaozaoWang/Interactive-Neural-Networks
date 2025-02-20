@@ -39,7 +39,7 @@ export default function ParamEdge({
   const arrowAreaWidth = 20;
   const arrowAreaHeight = 30;
   const RED = "#aedfef";
-  const D_RED = "#1caad9"; // dark red
+  const D_RED = "#0288b5"; // dark red
   const BLUE = "#f6b4aa";
   const D_BLUE = "#d9331a";
 
@@ -61,14 +61,15 @@ export default function ParamEdge({
   }, [data.nnData]);
 
   let edgeStyle = {
-    stroke: data?.isHovered
-      ? data.value > 0
-        ? D_RED
-        : D_BLUE
-      : data.value > 0
-      ? RED
-      : BLUE,
-    strokeWidth: 0.5 + Math.abs(data.value) * 4,
+    stroke:
+      data?.isHovered || data.glowingEle.includes(id)
+        ? data.value > 0
+          ? D_RED
+          : D_BLUE
+        : data.value > 0
+        ? RED
+        : BLUE,
+    strokeWidth: 1 + Math.abs(data.value) * 4,
     filter: isGlowing
       ? "drop-shadow(0px 0px 3px rgba(255, 208, 0, 1))"
       : "none",
@@ -88,13 +89,20 @@ export default function ParamEdge({
   //   console.log("data.clickedGrad", data.clickedGrad);
   // }, [data.clickedGrad]);
 
-  // useEffect(() => {
-  //   if (data.glowingEle === id) {
-  //     setIsGlowing(true);
-  //   } else {
-  //     setIsGlowing(false);
-  //   }
-  // }, [data.glowingEle]);
+  useEffect(() => {
+    // if (data.glowingEle === id) {
+    //   setIsGlowing(true);
+    // } else {
+    //   setIsGlowing(false);
+    // }
+    // console.log(id, data.glowingEle);
+    if (data.glowingEle && data.glowingEle.includes(id)) {
+      // console.log(id, "is glowing");
+      setIsGlowing(true);
+    } else {
+      setIsGlowing(false);
+    }
+  }, [data.glowingEle]);
 
   // useEffect(() => {
   //   if (arrowRef.current) {

@@ -264,7 +264,7 @@ const App = () => {
         }
       />
       <QuestionAnswer
-        state={true}
+        state={false}
         question={"Q: What tasks does a neural network perform?"}
         answer={
           <>
@@ -404,7 +404,7 @@ const App = () => {
               data, and click "Train" multiple times to train the network. After
               several training, the Loss value will be reduced greatly.
             </p>
-            <button
+            {/* <button
               className={tw`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none m-2`}
               onClick={handleFeed}
             >
@@ -421,9 +421,9 @@ const App = () => {
               <option value="0.1">0.1</option>
               <option value="0.05">0.05</option>
               <option defaultValue="0.02">0.02</option>
-            </select>
+            </select> */}
 
-            <div className={tw`flex mt-8 space-x-8`}>
+            {/* <div className={tw`flex mt-8 space-x-8`}>
               <div className={tw`flex-1`}>
                 <h2 className={tw`text-xl font-semibold mb-2 text-gray-700`}>
                   Predictions:
@@ -452,7 +452,7 @@ const App = () => {
                 </h2>
                 <p className={tw`text-gray-600`}>{loss.data.toFixed(2)}</p>
               </div>
-            </div>
+            </div> */}
 
             <div
               style={{

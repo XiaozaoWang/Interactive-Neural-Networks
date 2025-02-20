@@ -28,6 +28,7 @@ import OutputNode from "../components/OutputNode.jsx";
 
 import TextNode from "../components/TextNode.jsx";
 import FormulaNode from "../components/FormulaNode.jsx";
+import PathFormulaNode from "../components/PathFormulaNode.jsx";
 
 import ButtonNode from "../components/ButtonNode.jsx";
 import LrNode from "../components/LrNode.jsx";
@@ -50,6 +51,7 @@ const nodeTypes = {
   BiasNode: BiasNode,
   LrNode: LrNode,
   FormulaNode: FormulaNode,
+  PathFormulaNode: PathFormulaNode,
 };
 
 const edgeTypes = {
@@ -87,7 +89,6 @@ const NN2 = () => {
   const [selectedData, setSelectedData] = useState(0);
   const [comingData, setComingData] = useState(null);
   const [comingIdx, setComingIdx] = useState(null);
-  const [glowingEle, setGlowingEle] = useState([]);
   const [formulaOn, setFormulaOn] = useState(false);
   const [clickedGrad, setClickedGrad] = useState(null);
 
@@ -97,12 +98,16 @@ const NN2 = () => {
   const [prevNNData, setPrevNNData] = useState(null);
   const weightStep = 0.1;
 
+  const [paths, setPaths] = useState([]);
+  const [glowingEle, setGlowingEle] = useState([]);
+
   // activation functions
   function tanh(x) {
     return (Math.exp(2 * x) - 1) / (Math.exp(2 * x) + 1);
   }
 
-  const [NN, setNN] = useState(new MLP(2, [2, 3, 2, 1]));
+  const architecture = [2, 3, 2, 1];
+  const [NN, setNN] = useState(new MLP(2, architecture));
 
   const datumX = 100;
   const datumY = 180;
@@ -209,6 +214,55 @@ const NN2 = () => {
     return updatedData;
   }
 
+  // --- NEW: Helper functions to compute backpropagation paths ---
+  function getPathsFromLayer(currentLayer, prevNode, arch) {
+    if (currentLayer === arch.length) {
+      return [[]];
+    }
+    let allPaths = [];
+    for (let node = 0; node < arch[currentLayer]; node++) {
+      // Create the edge id from the previous node to the current node
+      const edgeId = `L${currentLayer}N${node}w${prevNode}`;
+      const nodeId = `L${currentLayer}N${node}`;
+      const subPaths = getPathsFromLayer(currentLayer + 1, node, arch);
+      subPaths.forEach((subPath) => {
+        allPaths.push([edgeId, nodeId, ...subPath]);
+      });
+    }
+    return allPaths;
+  }
+
+  function getBackpropPaths(weightBiasId, arch) {
+    const pattern = /^L(\d+)N(\d+)(w\d+|b)$/;
+    const match = weightBiasId.match(pattern);
+    if (!match) {
+      console.error("Invalid weight/bias id format.");
+      return [];
+    }
+    const layer = parseInt(match[1], 10);
+    const node = parseInt(match[2], 10);
+    if (layer + 1 >= arch.length) {
+      return [];
+    }
+    return getPathsFromLayer(layer + 1, node, arch).map((path) => [
+      weightBiasId,
+      weightBiasId.slice(0, 4),
+      ...path,
+    ]);
+  }
+
+  // --- NEW: Update the paths state whenever clickedGrad changes ---
+  useEffect(() => {
+    if (clickedGrad) {
+      const newPaths = getBackpropPaths(clickedGrad, architecture);
+      setPaths(newPaths);
+      // console.log("Updated paths:", newPaths);
+      setGlowingEle(newPaths[0]);
+    } else {
+      setPaths([]);
+    }
+  }, [clickedGrad]);
+
   // paint nodes and edges
   useEffect(() => {
     if (nnData.layers) {
@@ -256,6 +310,21 @@ const NN2 = () => {
               y: 50,
             },
             type: "LrNode",
+            draggable: false,
+          },
+          {
+            id: "formula",
+            data: {
+              onPathHover: onPathHover,
+              formulaOn: formulaOn,
+              clickedGrad: clickedGrad,
+              allPaths: paths,
+            },
+            position: {
+              x: datumX + 260,
+              y: 50,
+            },
+            type: "PathFormulaNode",
             draggable: false,
           }
         );
@@ -348,6 +417,7 @@ const NN2 = () => {
                     nnData: nnData,
                     showLabel: false,
                     onGradArrowClick: onGradArrowClick,
+                    glowingEle: glowingEle,
                     clickedGrad: clickedGrad,
                   },
                 });
@@ -364,6 +434,7 @@ const NN2 = () => {
                   layerIndex: layerIndex,
                   neuronIndex: neuronIndex,
                   onGradArrowClick: onGradArrowClick,
+                  glowingEle: glowingEle,
                   clickedGrad: clickedGrad,
                 },
               });
@@ -388,16 +459,17 @@ const NN2 = () => {
                     nnData: nnData,
                     showLabel: false,
                     onGradArrowClick: onGradArrowClick,
+                    glowingEle: glowingEle,
                     clickedGrad: clickedGrad,
                   },
                 });
               });
               // Bias edge for hidden layers
-              console.log(
-                "aaa",
-                `dumbL${layerIndex - 1}`,
-                `L${layerIndex}N${neuronIndex}`
-              );
+              // console.log(
+              //   "aaa",
+              //   `dumbL${layerIndex - 1}`,
+              //   `L${layerIndex}N${neuronIndex}`
+              // );
               edges.push({
                 id: `L${layerIndex}N${neuronIndex}b`,
                 source: `dumbL${layerIndex - 1}`,
@@ -409,6 +481,7 @@ const NN2 = () => {
                   layerIndex: layerIndex,
                   neuronIndex: neuronIndex,
                   onGradArrowClick: onGradArrowClick,
+                  glowingEle: glowingEle,
                   clickedGrad: clickedGrad,
                 },
               });
@@ -422,7 +495,7 @@ const NN2 = () => {
 
       buildGraph(nnData, selectedData);
     }
-  }, [nnData, selectedData, clickedGrad]);
+  }, [nnData, selectedData, clickedGrad, glowingEle]);
 
   // useEffect // nnData is reset every time the Train button is pressed
 
@@ -478,6 +551,12 @@ const NN2 = () => {
     // console.log("grad clicked", id);
     setClickedGrad(id);
   };
+  const onPathHover = (id) => {
+    // console.log("NN2 got path hover", id);
+    if (id) {
+      setGlowingEle(paths[id[4]]);
+    }
+  };
 
   return (
     <ReactFlowProvider>
@@ -500,6 +579,7 @@ const NN2 = () => {
         >
           {/* <Controls /> */}
           <Background bgColor="#fafafa" variant={BackgroundVariant.Dots} />
+          {/* <Background bgColor="#222222" variant={BackgroundVariant.Dots} /> */}
           {/* <Background /> */}
         </ReactFlow>
       </div>

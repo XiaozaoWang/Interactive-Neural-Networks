@@ -27,7 +27,7 @@ const SumNode = ({ id, data, isConnectable }) => {
 
   // Update the graph when data.value changes
   useEffect(() => {
-    console.log("sum", sum);
+    // console.log("sum", sum);
     const svg = d3.select(svgRef.current);
     // transition the progress bar to the new y position
 
@@ -115,7 +115,7 @@ const SumNode = ({ id, data, isConnectable }) => {
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         style={
-          isGlowing ? { boxShadow: "0 0 8px 4px rgba(255, 208, 0, 0.3)" } : {}
+          isGlowing ? { boxShadow: "0 0 8px 4px rgba(255, 208, 0, 0.9)" } : {}
         }
       >
         <Handle
