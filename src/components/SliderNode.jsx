@@ -25,6 +25,8 @@ const SliderNode = ({ id, data, isConnectable }) => {
 
   // 1. Update the graph when data.value changes
   useEffect(() => {
+    console.log("slider", id, data.value);
+
     const svg = d3.select(svgRef.current);
     // 1. Transition the draggable handle to the new y position
 
@@ -208,8 +210,14 @@ const SliderNode = ({ id, data, isConnectable }) => {
   }, [height, data]); // Depend on height for initial rendering and dragging
 
   useEffect(() => {
-    console.log("Glowing elements", data.glowingEle);
-    if (data.glowingEle === id) {
+    // console.log("Glowing elements from SliderNode:", data.glowingEle);
+    // if (data.glowingEle === id) {
+    //   setIsGlowing(true);
+    // } else {
+    //   setIsGlowing(false);
+    // }
+
+    if (data.glowingEle && data.glowingEle.includes(id)) {
       setIsGlowing(true);
     } else {
       setIsGlowing(false);

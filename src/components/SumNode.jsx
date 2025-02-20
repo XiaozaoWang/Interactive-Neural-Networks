@@ -8,11 +8,11 @@ import { MathJax, MathJaxContext } from "better-react-mathjax";
 const SumNode = ({ id, data, isConnectable }) => {
   const svgRef = useRef(null);
   const [sum, setSum] = useState(data.sum);
-  const [weights, setWeights] = useState(data.weights);
-  const [bias, setBias] = useState(data.bias);
+  // const [weights, setWeights] = useState(data.weights);
+  // const [bias, setBias] = useState(data.bias);
 
-  const nodeWidth = 30;
-  const nodeHeight = 130;
+  const nodeWidth = data.size.w;
+  const nodeHeight = data.size.h;
   const scale = d3.scaleLinear().domain([-3, 3]).range([0, nodeHeight]);
   const [height, setHeight] = useState(scale(sum)); // Keep track of the current height
   //   const [biasHeight, setBiasHeight] = useState(scale(bias)); // Keep track of the current height
@@ -27,6 +27,7 @@ const SumNode = ({ id, data, isConnectable }) => {
 
   // Update the graph when data.value changes
   useEffect(() => {
+    console.log("sum", sum);
     const svg = d3.select(svgRef.current);
     // transition the progress bar to the new y position
 
@@ -40,7 +41,12 @@ const SumNode = ({ id, data, isConnectable }) => {
 
   // set glowing
   useEffect(() => {
-    if (data.glowingEle === id) {
+    // if (data.glowingEle === id) {
+    //   setIsGlowing(true);
+    // } else {
+    //   setIsGlowing(false);
+    // }
+    if (data.glowingEle && data.glowingEle.includes(id)) {
       setIsGlowing(true);
     } else {
       setIsGlowing(false);
@@ -139,7 +145,7 @@ const SumNode = ({ id, data, isConnectable }) => {
         {/* Interactive MathJax tooltip */}
         {toggleEquation && (
           <div
-            className={tw`absolute top-[-50px] left-[-130px] bg-white shadow-md border border-gray-300 p-2 rounded-md text-[12px] flex gap-1`}
+            className={tw`absolute top-[-50px] left-[-130px] bg-white shadow-md border border-gray-300 p-2 rounded-md text-[12px] flex gap-1 cursor-pointer`}
           >
             {data.inputs.map((input, i) => (
               <React.Fragment key={i}>

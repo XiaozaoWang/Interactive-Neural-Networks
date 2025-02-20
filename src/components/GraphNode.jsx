@@ -19,7 +19,7 @@ const GraphNode = ({ id, data }) => {
   const [output, setOutput] = useState(data.output);
   const [isDragging, setIsDragging] = useState(false);
   const draggable = data.draggable ? data.draggable : false;
-  const [isGlowing, setIsGlowing] = useState(true);
+  const [isGlowing, setIsGlowing] = useState(false);
 
   useEffect(() => {
     const svg = d3.select(svgRef.current);
@@ -38,7 +38,12 @@ const GraphNode = ({ id, data }) => {
 
   // set glowing
   useEffect(() => {
-    if (data.glowingEle === id) {
+    // if (data.glowingEle === id) {
+    //   setIsGlowing(true);
+    // } else {
+    //   setIsGlowing(false);
+    // }
+    if (data.glowingEle && data.glowingEle.includes(id)) {
       setIsGlowing(true);
     } else {
       setIsGlowing(false);

@@ -5,6 +5,7 @@ import { tw } from "twind";
 
 // Flows
 import NN from "./flows/NN";
+import NN2 from "./flows/NN2";
 import InOut from "./flows/InOut";
 import SinglePredict from "./flows/SinglePredict";
 import Activation from "./flows/Activation";
@@ -384,7 +385,7 @@ const App = () => {
               {/* <SinglePredict /> */}
             </div>
             <div className={tw`flex justify-center items-center`}>
-              <SingleTrain />
+              {/* <SingleTrain /> */}
             </div>
             <div className={tw`flex justify-center items-center`}>
               {/* <Activation /> */}
@@ -461,6 +462,7 @@ const App = () => {
               }}
             >
               {/* <NN nnData={nnData} lastInputData={lastInputData} /> */}
+              <NN2 />
             </div>
           </>
         }

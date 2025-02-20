@@ -36,14 +36,6 @@ const NN = ({ nnData, lastInputData }) => {
     (changes) => {
       setNodes((nds) => {
         const updatedNodes = applyNodeChanges(changes, nds);
-
-        // Print the current position of all the nodes
-        // updatedNodes.forEach((node) => {
-        //   console.log(
-        //     `Node ${node.id} is at position x: ${node.position.x}, y: ${node.position.y}`
-        //   );
-        // });
-
         return updatedNodes;
       });
     },
@@ -124,6 +116,7 @@ const NN = ({ nnData, lastInputData }) => {
                   data: {
                     value: val,
                     isHovered: false,
+                    nnData: nnData,
                   },
                 });
               });
@@ -143,6 +136,7 @@ const NN = ({ nnData, lastInputData }) => {
                   data: {
                     value: val,
                     isHovered: false,
+                    nnData: nnData,
                   },
                 });
               });

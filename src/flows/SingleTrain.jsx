@@ -15,19 +15,24 @@ import { mean_squared_error, MLP, Value } from "../micrograd";
 import { tw } from "twind";
 
 import InputField from "../components/InputField.jsx";
+
 import DragNode from "../components/DragNode.jsx";
 import SliderNode from "../components/SliderNode.jsx";
 import BlackBox from "../components/BlackBox.jsx";
-import TextNode from "../components/TextNode.jsx";
 import GraphNode from "../components/GraphNode.jsx";
-import ButtonNode from "../components/ButtonNode.jsx";
 import FaceNode from "../components/FaceNode.jsx";
 import SumNode from "../components/SumNode.jsx";
 import BiasNode from "../components/BiasNode.jsx";
-import LrNode from "../components/LrNode.jsx";
+
+import TextNode from "../components/TextNode.jsx";
 import FormulaNode from "../components/FormulaNode.jsx";
+
+import ButtonNode from "../components/ButtonNode.jsx";
+import LrNode from "../components/LrNode.jsx";
+
 import ParamEdge from "../components/ParamEdge.jsx";
 import NormalEdge from "../components/NormalEdge.jsx";
+
 import { drag, map, text } from "d3";
 
 const nodeTypes = {
@@ -84,6 +89,7 @@ export default function SingleTrain() {
   const [comingIdx, setComingIdx] = useState(null);
   const [glowingEle, setGlowingEle] = useState([]);
   const [formulaOn, setFormulaOn] = useState(false);
+  const [clickedGrad, setClickedGrad] = useState(null);
 
   // activation functions
   function tanh(x) {
@@ -256,8 +262,9 @@ export default function SingleTrain() {
         data: {
           sum: inOutNN.layers[0].neurons[0].sum.data,
           inputs: inputs[selectedData],
-          weights: inOutNN.layers[0].neurons[0].w.map((w) => w.data),
-          bias: inOutNN.layers[0].neurons[0].b.data,
+          // weights: inOutNN.layers[0].neurons[0].w.map((w) => w.data),
+          // bias: inOutNN.layers[0].neurons[0].b.data,
+          size: { w: 30, h: 130 },
           glowingEle: glowingEle,
           onBiasChange: onBiasChange,
           onParamHover: onParamHover,
@@ -292,6 +299,7 @@ export default function SingleTrain() {
           value: Number(prediction), // Change based on selectedData
           target: targets[selectedData],
           onValueChange: onValueChange,
+          glowingEle: glowingEle,
           text: "Prediction",
         },
         position: {
@@ -302,11 +310,12 @@ export default function SingleTrain() {
         draggable: false,
       },
       {
-        id: "target",
+        id: "loss",
         data: {
-          value: targets[selectedData], // Change based on selectedData
+          value: loss.data / 2, // need fix
           onValueChange: onValueChange,
-          text: "Label",
+          glowingEle: glowingEle,
+          text: "Loss",
           grayscale: 50, // doesn't look good
         },
         position: {
@@ -373,6 +382,7 @@ export default function SingleTrain() {
         data: {
           onParamHover: onParamHover,
           formulaOn: formulaOn,
+          clickedGrad: clickedGrad,
         },
         position: {
           x: datumX + 260,
@@ -395,7 +405,10 @@ export default function SingleTrain() {
           isHovered: false,
           isClicked: false,
           glowingEle: glowingEle,
-          onParamHover: onParamHover,
+          // onParamHover: onParamHover,
+          onGradArrowClick: onGradArrowClick,
+          clickedGrad: clickedGrad,
+          showLabel: true,
           onWeightIncrease: onWeightIncrease,
           onWeightDecrease: onWeightDecrease,
         },
@@ -411,7 +424,10 @@ export default function SingleTrain() {
           isHovered: false,
           isClicked: false,
           glowingEle: glowingEle,
-          onParamHover: onParamHover,
+          // onParamHover: onParamHover,
+          onGradArrowClick: onGradArrowClick,
+          clickedGrad: clickedGrad,
+          showLabel: true,
           onWeightIncrease: onWeightIncrease,
           onWeightDecrease: onWeightDecrease,
         },
@@ -427,7 +443,10 @@ export default function SingleTrain() {
           isHovered: false,
           isClicked: false,
           glowingEle: glowingEle,
-          onParamHover: onParamHover,
+          // onParamHover: onParamHover,
+          onGradArrowClick: onGradArrowClick,
+          clickedGrad: clickedGrad,
+          showLabel: true,
           onWeightIncrease: onWeightIncrease,
           onWeightDecrease: onWeightDecrease,
         },
@@ -447,9 +466,9 @@ export default function SingleTrain() {
         type: "NormalEdge",
       },
       {
-        id: "p-t",
+        id: "p-l",
         source: "prediction",
-        target: "target",
+        target: "loss",
         animated: false,
         type: "NormalEdge",
       },
@@ -465,6 +484,8 @@ export default function SingleTrain() {
     mapPredictions,
     glowingEle,
     formulaOn,
+    clickedGrad,
+    loss,
   ]); // Add dependencies
 
   useEffect(() => {
@@ -533,7 +554,7 @@ export default function SingleTrain() {
   };
 
   const onEdgeClick = (event, edge) => {
-    setFormulaOn(!formulaOn);
+    // setFormulaOn(!formulaOn);
     // const edgeId = edge.id;
     // // Updates edge
     // setEdges((prevElements) =>
@@ -549,6 +570,11 @@ export default function SingleTrain() {
     //       : element
     //   )
     // );
+  };
+
+  const onGradArrowClick = (id) => {
+    // console.log("grad clicked", id);
+    setClickedGrad(id);
   };
 
   const onWeightIncrease = (id) => {
@@ -589,8 +615,17 @@ export default function SingleTrain() {
   };
 
   const onParamHover = (id) => {
-    console.log("onParamHover: ", id);
-    setGlowingEle(id);
+    // console.log("onParamHover: ", id);
+
+    if (id === "grad0") {
+      setGlowingEle(["loss", "p-l", "prediction", "a-p", "n11a"]);
+    } else if (id === "grad1") {
+      setGlowingEle(["n11a", "n11s"]);
+    } else if (id === "grad2") {
+      setGlowingEle(["n11a", "n11s"]);
+    } else {
+      setGlowingEle([id]);
+    }
   };
 
   return (
