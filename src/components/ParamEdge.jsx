@@ -46,15 +46,30 @@ export default function ParamEdge({
   useEffect(() => {
     if (data.nnData.length !== 0) {
       // console.log("layerIndex", data.layerIndex, data.neuronIndex);
-      let gradRoot = data.nnData.layers[data.layerIndex][data.neuronIndex];
+      let gradRoot;
+      if (data.layerIndex && data.neuronIndex) {
+        gradRoot = data.nnData.layers[data.layerIndex][data.neuronIndex];
+      } else {
+        gradRoot = data.nnData.layers[0][0];
+      }
+
       // console.log(
       //   "gradroot",
       //   data.nnData.layers[data.layerIndex][data.neuronIndex]
       // );
       // console.log("gradRoot", gradRoot);
       if (id.includes("w")) {
-        setGrad(gradRoot.gradw[id[5]]);
+        // console.log(gradRoot.gradw);
+        // console.log(id.length);
+        // console.log("1", gradRoot.gradw[id[5]]);
+        if (id.length === 5) {
+          // console.log(gradRoot.gradw[id[4]]);
+          setGrad(gradRoot.gradw[id[4] - 1]);
+        } else {
+          setGrad(gradRoot.gradw[id[5]]);
+        }
       } else if (id.includes("b")) {
+        // console.log("2", gradRoot.gradb);
         setGrad(gradRoot.gradb);
       }
     }
@@ -246,7 +261,13 @@ export default function ParamEdge({
           }}
           onClick={handleGradArrowClick}
         >
-          {grad !== 0 ? grad < 0 ? <ImArrowUp /> : <ImArrowDown /> : null}
+          {grad !== 0 && grad !== undefined ? (
+            grad < 0 ? (
+              <ImArrowUp />
+            ) : (
+              <ImArrowDown />
+            )
+          ) : null}
         </div>
       </EdgeLabelRenderer>
     </>

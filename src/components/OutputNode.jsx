@@ -148,7 +148,7 @@ export default function OutputNode({ id, data, isConnectable }) {
         />
 
         {/* Interactive MathJax tooltip */}
-        {toggleEquation && (
+        {toggleEquation && data.weights && (
           <div
             className={tw`absolute top-[-50px] left-[-130px] bg-white shadow-md border border-gray-300 p-2 rounded-md text-[12px] flex gap-1 cursor-pointer`}
           >

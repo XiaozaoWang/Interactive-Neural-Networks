@@ -385,7 +385,7 @@ const App = () => {
               {/* <SinglePredict /> */}
             </div>
             <div className={tw`flex justify-center items-center`}>
-              {/* <SingleTrain /> */}
+              <SingleTrain />
             </div>
             <div className={tw`flex justify-center items-center`}>
               {/* <Activation /> */}

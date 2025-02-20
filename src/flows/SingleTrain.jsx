@@ -262,8 +262,8 @@ export default function SingleTrain() {
         data: {
           sum: inOutNN.layers[0].neurons[0].sum.data,
           inputs: inputs[selectedData],
-          // weights: inOutNN.layers[0].neurons[0].w.map((w) => w.data),
-          // bias: inOutNN.layers[0].neurons[0].b.data,
+          weights: inOutNN.layers[0].neurons[0].w.map((w) => w.data),
+          bias: inOutNN.layers[0].neurons[0].b.data,
           size: { w: 30, h: 130 },
           glowingEle: glowingEle,
           onBiasChange: onBiasChange,
@@ -573,7 +573,7 @@ export default function SingleTrain() {
   };
 
   const onGradArrowClick = (id) => {
-    // console.log("grad clicked", id);
+    console.log("grad clicked", id);
     setClickedGrad(id);
   };
 
@@ -622,7 +622,7 @@ export default function SingleTrain() {
     } else if (id === "grad1") {
       setGlowingEle(["n11a", "n11s"]);
     } else if (id === "grad2") {
-      setGlowingEle(["n11a", "n11s"]);
+      setGlowingEle(["n11s", clickedGrad]);
     } else {
       setGlowingEle([id]);
     }
