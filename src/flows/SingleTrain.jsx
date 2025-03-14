@@ -651,7 +651,7 @@ export default function SingleTrain() {
             <Background
               bgColor="#fafafa"
               variant={false}
-              style={{ border: "1px solid lightgray" }}
+              // style={{ border: "1px solid lightgray" }}
             />
           </ReactFlow>
         </div>
