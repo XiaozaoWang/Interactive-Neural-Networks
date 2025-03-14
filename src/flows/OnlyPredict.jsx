@@ -11,7 +11,7 @@ import {
   ReactFlowProvider,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { mean_squared_error, MLP, Value } from "../micrograd";
+import { mean_squared_error, MLP, Value } from "../micrograd.js";
 import { tw } from "twind";
 
 import InputField from "../components/InputField.jsx";
@@ -55,9 +55,9 @@ const edgeTypes = {
   NormalEdge: NormalEdge,
 };
 
-export default function SingleTrain() {
+export default function OnlyPredict() {
   const datumX = 100;
-  const datumY = 180;
+  const datumY = 50;
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
@@ -337,46 +337,46 @@ export default function SingleTrain() {
         type: "FaceNode",
         draggable: false,
       },
-      {
-        id: "step-button",
-        data: {
-          text: "Step",
-          handleClick: handleStep,
-        },
-        position: {
-          x: datumX,
-          y: 50,
-        },
-        type: "ButtonNode",
-        draggable: false,
-      },
-      {
-        id: "train-button",
-        data: {
-          text: "Train",
-          handleClick: handleTrain,
-        },
-        position: {
-          x: datumX + 80,
-          y: 50,
-        },
-        type: "ButtonNode",
-        draggable: false,
-      },
-      {
-        id: "lr",
-        data: {
-          handleClick: (lr) => {
-            console.log("lr:", lr);
-          },
-        },
-        position: {
-          x: datumX + 160,
-          y: 50,
-        },
-        type: "LrNode",
-        draggable: false,
-      },
+      // {
+      //   id: "step-button",
+      //   data: {
+      //     text: "Step",
+      //     handleClick: handleStep,
+      //   },
+      //   position: {
+      //     x: datumX,
+      //     y: 50,
+      //   },
+      //   type: "ButtonNode",
+      //   draggable: false,
+      // },
+      // {
+      //   id: "train-button",
+      //   data: {
+      //     text: "Train",
+      //     handleClick: handleTrain,
+      //   },
+      //   position: {
+      //     x: datumX + 80,
+      //     y: 50,
+      //   },
+      //   type: "ButtonNode",
+      //   draggable: false,
+      // },
+      // {
+      //   id: "lr",
+      //   data: {
+      //     handleClick: (lr) => {
+      //       console.log("lr:", lr);
+      //     },
+      //   },
+      //   position: {
+      //     x: datumX + 160,
+      //     y: 50,
+      //   },
+      //   type: "LrNode",
+      //   draggable: false,
+      // },
       {
         id: "formula",
         data: {
@@ -391,81 +391,81 @@ export default function SingleTrain() {
         type: "FormulaNode",
         draggable: false,
       },
-      {
-        id: "inputfieldinstruction",
-        data: {
-          text: (
-            <div>
-              <p className={tw`py-[0px]`}>
-                <strong>1. </strong>
-                <strong className={tw`text-blue-500`}>Click on</strong>{" "}
-                different data points.
-              </p>
-            </div>
-          ),
-          width: 220,
-        },
-        position: {
-          x: 100,
-          y: 600,
-        },
-        type: "TextNode",
-      },
-      {
-        id: "inputinstruction",
-        data: {
-          text: (
-            <div>
-              <p className={tw`py-[0px]`}>
-                <strong>2. </strong>The features and labels will be fed into our
-                Neural Network.
-              </p>
-            </div>
-          ),
-          width: 150,
-        },
-        position: {
-          x: 370,
-          y: 600,
-        },
-        type: "TextNode",
-      },
-      {
-        id: "predictinstruction",
-        data: {
-          text: (
-            <div>
-              <p className={tw`pb-[4px]`}>
-                <strong>3. </strong>Compare the{" "}
-                <strong className={tw`text-blue-500 font-bold`}>
-                  prediction
-                </strong>{" "}
-                and the{" "}
-                <strong className={tw`text-blue-500 font-bold`}>label</strong>{" "}
-                (right answer).
-              </p>
-              <p className={tw`pb-[12px]`}>Is the prediction good?</p>
-              <p className={tw`pb-[4px]`}>
-                <strong>4. </strong>Now try to hit the{" "}
-                <strong className={tw`text-red-400 font-bold`}>
-                  Step Button
-                </strong>{" "}
-                <strong className={tw`text-blue-500 font-bold`}>
-                  multiple times
-                </strong>
-                , has the result improved for current data point?
-              </p>
-              <p>How about other data points?</p>
-            </div>
-          ),
-          width: 300,
-        },
-        position: {
-          x: 870,
-          y: 530,
-        },
-        type: "TextNode",
-      },
+      // {
+      //   id: "inputfieldinstruction",
+      //   data: {
+      //     text: (
+      //       <div>
+      //         <p className={tw`py-[0px]`}>
+      //           <strong>1. </strong>
+      //           <strong className={tw`text-blue-500`}>Click on</strong>{" "}
+      //           different data points.
+      //         </p>
+      //       </div>
+      //     ),
+      //     width: 220,
+      //   },
+      //   position: {
+      //     x: 100,
+      //     y: 600,
+      //   },
+      //   type: "TextNode",
+      // },
+      // {
+      //   id: "inputinstruction",
+      //   data: {
+      //     text: (
+      //       <div>
+      //         <p className={tw`py-[0px]`}>
+      //           <strong>2. </strong>The features and labels will be fed into our
+      //           Neural Network.
+      //         </p>
+      //       </div>
+      //     ),
+      //     width: 150,
+      //   },
+      //   position: {
+      //     x: 370,
+      //     y: 600,
+      //   },
+      //   type: "TextNode",
+      // },
+      // {
+      //   id: "predictinstruction",
+      //   data: {
+      //     text: (
+      //       <div>
+      //         <p className={tw`pb-[4px]`}>
+      //           <strong>3. </strong>Compare the{" "}
+      //           <strong className={tw`text-blue-500 font-bold`}>
+      //             prediction
+      //           </strong>{" "}
+      //           and the{" "}
+      //           <strong className={tw`text-blue-500 font-bold`}>label</strong>{" "}
+      //           (right answer).
+      //         </p>
+      //         <p className={tw`pb-[12px]`}>Is the prediction good?</p>
+      //         <p className={tw`pb-[4px]`}>
+      //           <strong>4. </strong>Now try to hit the{" "}
+      //           <strong className={tw`text-red-400 font-bold`}>
+      //             Train Button
+      //           </strong>{" "}
+      //           <strong className={tw`text-blue-500 font-bold`}>
+      //             multiple times
+      //           </strong>
+      //           , has the result improved for current data point?
+      //         </p>
+      //         <p>How about other data points?</p>
+      //       </div>
+      //     ),
+      //     width: 300,
+      //   },
+      //   position: {
+      //     x: 870,
+      //     y: 530,
+      //   },
+      //   type: "TextNode",
+      // },
     ];
 
     const newEdges = [
@@ -706,7 +706,7 @@ export default function SingleTrain() {
   return (
     <>
       <ReactFlowProvider>
-        <div style={{ height: "750px", width: "1250px" }}>
+        <div style={{ height: "500px", width: "1250px" }}>
           <ReactFlow
             nodes={nodes}
             edges={edges}

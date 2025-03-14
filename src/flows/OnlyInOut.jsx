@@ -11,7 +11,7 @@ import {
   ReactFlowProvider,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { mean_squared_error, MLP, Value } from "../micrograd";
+import { mean_squared_error, MLP, Value } from "../micrograd.js";
 import { tw } from "twind";
 
 import InputField from "../components/InputField.jsx";
@@ -55,9 +55,9 @@ const edgeTypes = {
   NormalEdge: NormalEdge,
 };
 
-export default function SingleTrain() {
+export default function OnlyInOut() {
   const datumX = 100;
-  const datumY = 180;
+  const datumY = 50;
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
@@ -247,136 +247,124 @@ export default function SingleTrain() {
         type: "SliderNode",
         draggable: false,
       },
-      {
-        id: "dumb",
-        position: {
-          x: datumX + 300,
-          y: datumY + 350,
-        },
-        type: "BiasNode",
-        draggable: false,
-      },
+      // {
+      //   id: "dumb",
+      //   position: {
+      //     x: datumX + 300,
+      //     y: datumY + 350,
+      //   },
+      //   type: "BiasNode",
+      //   draggable: false,
+      // },
 
+      // {
+      //   id: "n11s",
+      //   data: {
+      //     sum: inOutNN.layers[0].neurons[0].sum.data,
+      //     inputs: inputs[selectedData],
+      //     weights: inOutNN.layers[0].neurons[0].w.map((w) => w.data),
+      //     bias: inOutNN.layers[0].neurons[0].b.data,
+      //     size: { w: 30, h: 130 },
+      //     glowingEle: glowingEle,
+      //     onBiasChange: onBiasChange,
+      //     onParamHover: onParamHover,
+      //   },
+      //   position: {
+      //     x: datumX + 510,
+      //     y: datumY + 90,
+      //   },
+      //   type: "SumNode",
+      //   draggable: false,
+      // },
+      // {
+      //   id: "n11a",
+      //   data: {
+      //     input: inOutNN.layers[0].neurons[0].sum.data,
+      //     output: inOutNN.layers[0].neurons[0].out.data,
+      //     func: tanh,
+      //     glowingEle: glowingEle,
+      //     text: "Activation",
+      //     draggable: false,
+      //   },
+      //   position: {
+      //     x: datumX + 570,
+      //     y: datumY + 80,
+      //   },
+      //   type: "GraphNode",
+      //   draggable: false,
+      // },
       {
-        id: "n11s",
+        id: "blackbox",
         data: {
-          sum: inOutNN.layers[0].neurons[0].sum.data,
-          inputs: inputs[selectedData],
-          weights: inOutNN.layers[0].neurons[0].w.map((w) => w.data),
-          bias: inOutNN.layers[0].neurons[0].b.data,
-          size: { w: 30, h: 130 },
-          glowingEle: glowingEle,
-          onBiasChange: onBiasChange,
-          onParamHover: onParamHover,
+          handleTrain: handleTrain,
         },
         position: {
-          x: datumX + 510,
-          y: datumY + 90,
+          x: 600,
+          y: 100,
         },
-        type: "SumNode",
+        type: "BlackBox",
         draggable: false,
       },
+      // {
+      //   id: "prediction",
+      //   data: {
+      //     value: Number(prediction), // Change based on selectedData
+      //     target: targets[selectedData],
+      //     onValueChange: onValueChange,
+      //     glowingEle: glowingEle,
+      //     text: "Prediction",
+      //   },
+      //   position: {
+      //     x: datumX + 800,
+      //     y: datumY + 80,
+      //   },
+      //   type: "SliderNode",
+      //   draggable: false,
+      // },
       {
-        id: "n11a",
+        id: "target",
         data: {
-          input: inOutNN.layers[0].neurons[0].sum.data,
-          output: inOutNN.layers[0].neurons[0].out.data,
-          func: tanh,
-          glowingEle: glowingEle,
-          text: "Activation",
-          draggable: false,
-        },
-        position: {
-          x: datumX + 570,
-          y: datumY + 80,
-        },
-        type: "GraphNode",
-        draggable: false,
-      },
-      {
-        id: "prediction",
-        data: {
-          value: Number(prediction), // Change based on selectedData
-          target: targets[selectedData],
+          value: targets[selectedData], // Change based on selectedData
           onValueChange: onValueChange,
-          glowingEle: glowingEle,
-          text: "Prediction",
+          text: "Label",
+          // grayscale: 50, // doesn't look good
+          target: targets[selectedData],
         },
         position: {
           x: datumX + 800,
-          y: datumY + 80,
+          y: datumY + 50,
         },
         type: "SliderNode",
         draggable: false,
       },
-      {
-        id: "loss",
-        data: {
-          value: loss.data / 2, // need fix
-          onValueChange: onValueChange,
-          glowingEle: glowingEle,
-          text: "Loss",
-          grayscale: 50, // doesn't look good
-        },
-        position: {
-          x: datumX + 950,
-          y: datumY + 80,
-        },
-        type: "SliderNode",
-        draggable: false,
-      },
-      {
-        id: "face",
-        data: {
-          value: Math.abs(Number(prediction) - targets[selectedData]), // Change based on selectedData
-        },
-        position: {
-          x: datumX + 890,
-          y: datumY + 135,
-        },
-        type: "FaceNode",
-        draggable: false,
-      },
-      {
-        id: "step-button",
-        data: {
-          text: "Step",
-          handleClick: handleStep,
-        },
-        position: {
-          x: datumX,
-          y: 50,
-        },
-        type: "ButtonNode",
-        draggable: false,
-      },
-      {
-        id: "train-button",
-        data: {
-          text: "Train",
-          handleClick: handleTrain,
-        },
-        position: {
-          x: datumX + 80,
-          y: 50,
-        },
-        type: "ButtonNode",
-        draggable: false,
-      },
-      {
-        id: "lr",
-        data: {
-          handleClick: (lr) => {
-            console.log("lr:", lr);
-          },
-        },
-        position: {
-          x: datumX + 160,
-          y: 50,
-        },
-        type: "LrNode",
-        draggable: false,
-      },
+      // {
+      //   id: "loss",
+      //   data: {
+      //     value: loss.data / 2, // need fix
+      //     onValueChange: onValueChange,
+      //     glowingEle: glowingEle,
+      //     text: "Loss",
+      //     grayscale: 50, // doesn't look good
+      //   },
+      //   position: {
+      //     x: datumX + 950,
+      //     y: datumY + 80,
+      //   },
+      //   type: "SliderNode",
+      //   draggable: false,
+      // },
+      // {
+      //   id: "face",
+      //   data: {
+      //     value: Math.abs(Number(prediction) - targets[selectedData]), // Change based on selectedData
+      //   },
+      //   position: {
+      //     x: datumX + 890,
+      //     y: datumY + 135,
+      //   },
+      //   type: "FaceNode",
+      //   draggable: false,
+      // },
       {
         id: "formula",
         data: {
@@ -390,45 +378,6 @@ export default function SingleTrain() {
         },
         type: "FormulaNode",
         draggable: false,
-      },
-      {
-        id: "inputfieldinstruction",
-        data: {
-          text: (
-            <div>
-              <p className={tw`py-[0px]`}>
-                <strong>1. </strong>
-                <strong className={tw`text-blue-500`}>Click on</strong>{" "}
-                different data points.
-              </p>
-            </div>
-          ),
-          width: 220,
-        },
-        position: {
-          x: 100,
-          y: 600,
-        },
-        type: "TextNode",
-      },
-      {
-        id: "inputinstruction",
-        data: {
-          text: (
-            <div>
-              <p className={tw`py-[0px]`}>
-                <strong>2. </strong>The features and labels will be fed into our
-                Neural Network.
-              </p>
-            </div>
-          ),
-          width: 150,
-        },
-        position: {
-          x: 370,
-          y: 600,
-        },
-        type: "TextNode",
       },
       {
         id: "predictinstruction",
@@ -448,7 +397,7 @@ export default function SingleTrain() {
               <p className={tw`pb-[4px]`}>
                 <strong>4. </strong>Now try to hit the{" "}
                 <strong className={tw`text-red-400 font-bold`}>
-                  Step Button
+                  Train Button
                 </strong>{" "}
                 <strong className={tw`text-blue-500 font-bold`}>
                   multiple times
@@ -469,83 +418,104 @@ export default function SingleTrain() {
     ];
 
     const newEdges = [
+      // {
+      //   id: "n11w1",
+      //   source: "i1",
+      //   target: "n11s",
+      //   type: "ParamEdge",
+      //   data: {
+      //     nnData: nnData,
+      //     value: inOutNN.layers[0].neurons[0].w[0].data.toFixed(2),
+      //     isHovered: false,
+      //     isClicked: false,
+      //     glowingEle: glowingEle,
+      //     // onParamHover: onParamHover,
+      //     onGradArrowClick: onGradArrowClick,
+      //     clickedGrad: clickedGrad,
+      //     showLabel: true,
+      //     onWeightIncrease: onWeightIncrease,
+      //     onWeightDecrease: onWeightDecrease,
+      //   },
+      // },
+      // {
+      //   id: "n11w2",
+      //   source: "i2",
+      //   target: "n11s",
+      //   type: "ParamEdge",
+      //   data: {
+      //     nnData: nnData,
+      //     value: inOutNN.layers[0].neurons[0].w[1].data.toFixed(2),
+      //     isHovered: false,
+      //     isClicked: false,
+      //     glowingEle: glowingEle,
+      //     // onParamHover: onParamHover,
+      //     onGradArrowClick: onGradArrowClick,
+      //     clickedGrad: clickedGrad,
+      //     showLabel: true,
+      //     onWeightIncrease: onWeightIncrease,
+      //     onWeightDecrease: onWeightDecrease,
+      //   },
+      // },
+      // {
+      //   id: "n11b",
+      //   source: "dumb",
+      //   target: "n11s",
+      //   type: "ParamEdge",
+      //   data: {
+      //     nnData: nnData,
+      //     value: inOutNN.layers[0].neurons[0].b.data.toFixed(2),
+      //     isHovered: false,
+      //     isClicked: false,
+      //     glowingEle: glowingEle,
+      //     // onParamHover: onParamHover,
+      //     onGradArrowClick: onGradArrowClick,
+      //     clickedGrad: clickedGrad,
+      //     showLabel: true,
+      //     onWeightIncrease: onWeightIncrease,
+      //     onWeightDecrease: onWeightDecrease,
+      //   },
+      // },
+      // {
+      //   id: "s-a",
+      //   source: "n11s",
+      //   target: "n11a",
+      //   animated: true,
+      //   type: "NormalEdge",
+      // },
+      // {
+      //   id: "a-p",
+      //   source: "n11a",
+      //   target: "prediction",
+      //   animated: false,
+      //   type: "NormalEdge",
+      // },
+      // {
+      //   id: "p-l",
+      //   source: "prediction",
+      //   target: "loss",
+      //   animated: false,
+      //   type: "NormalEdge",
+      // },
       {
-        id: "n11w1",
+        id: "edge1",
         source: "i1",
-        target: "n11s",
-        type: "ParamEdge",
-        data: {
-          nnData: nnData,
-          value: inOutNN.layers[0].neurons[0].w[0].data.toFixed(2),
-          isHovered: false,
-          isClicked: false,
-          glowingEle: glowingEle,
-          // onParamHover: onParamHover,
-          onGradArrowClick: onGradArrowClick,
-          clickedGrad: clickedGrad,
-          showLabel: true,
-          onWeightIncrease: onWeightIncrease,
-          onWeightDecrease: onWeightDecrease,
-        },
-      },
-      {
-        id: "n11w2",
-        source: "i2",
-        target: "n11s",
-        type: "ParamEdge",
-        data: {
-          nnData: nnData,
-          value: inOutNN.layers[0].neurons[0].w[1].data.toFixed(2),
-          isHovered: false,
-          isClicked: false,
-          glowingEle: glowingEle,
-          // onParamHover: onParamHover,
-          onGradArrowClick: onGradArrowClick,
-          clickedGrad: clickedGrad,
-          showLabel: true,
-          onWeightIncrease: onWeightIncrease,
-          onWeightDecrease: onWeightDecrease,
-        },
-      },
-      {
-        id: "n11b",
-        source: "dumb",
-        target: "n11s",
-        type: "ParamEdge",
-        data: {
-          nnData: nnData,
-          value: inOutNN.layers[0].neurons[0].b.data.toFixed(2),
-          isHovered: false,
-          isClicked: false,
-          glowingEle: glowingEle,
-          // onParamHover: onParamHover,
-          onGradArrowClick: onGradArrowClick,
-          clickedGrad: clickedGrad,
-          showLabel: true,
-          onWeightIncrease: onWeightIncrease,
-          onWeightDecrease: onWeightDecrease,
-        },
-      },
-      {
-        id: "s-a",
-        source: "n11s",
-        target: "n11a",
+        target: "blackbox",
+        // sourceHandle: "right",
         animated: true,
-        type: "NormalEdge",
       },
       {
-        id: "a-p",
-        source: "n11a",
-        target: "prediction",
-        animated: false,
-        type: "NormalEdge",
+        id: "edge2",
+        source: "i2",
+        target: "blackbox",
+        // sourceHandle: "right",
+        animated: true,
       },
       {
-        id: "p-l",
-        source: "prediction",
-        target: "loss",
-        animated: false,
-        type: "NormalEdge",
+        id: "edge3",
+        source: "blackbox",
+        target: "target",
+        // sourceHandle: "right",
+        animated: true,
       },
     ];
 
@@ -706,7 +676,7 @@ export default function SingleTrain() {
   return (
     <>
       <ReactFlowProvider>
-        <div style={{ height: "750px", width: "1250px" }}>
+        <div style={{ height: "450px", width: "1250px" }}>
           <ReactFlow
             nodes={nodes}
             edges={edges}

@@ -114,9 +114,9 @@ const SumNode = ({ id, data, isConnectable }) => {
         className={tw`relative rounded-md transition-shadow`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        style={
-          isGlowing ? { boxShadow: "0 0 8px 4px rgba(255, 208, 0, 0.9)" } : {}
-        }
+        style={{
+          boxShadow: isGlowing ? "0 0 8px 4px rgba(255, 208, 0, 0.9)" : "",
+        }}
       >
         <Handle
           type="target"
@@ -143,70 +143,71 @@ const SumNode = ({ id, data, isConnectable }) => {
         />
 
         {/* Interactive MathJax tooltip */}
-        {toggleEquation && data.weights && (
-          <div
-            className={tw`absolute top-[-50px] left-[-130px] bg-white shadow-md border border-gray-300 p-2 rounded-md text-[12px] flex gap-1 cursor-pointer`}
-          >
-            {data.inputs.map((input, i) => (
-              <React.Fragment key={i}>
-                <span
-                  style={{
-                    backgroundColor:
-                      highlightedId === `i${i + 1}` ? "#FCEA8F" : "transparent",
-                  }}
-                  onMouseEnter={() => handleHover(`i${i + 1}`)}
-                  onMouseLeave={handleMouseLeave}
-                >
-                  <span style={{ color: "black" }}>{input.toFixed(2)}</span>
-                </span>
-                <span>×</span>
-                <span
-                  style={{
-                    backgroundColor:
-                      highlightedId === `${id.slice(0, 3)}w${i + 1}`
-                        ? "#FCEA8F"
-                        : "transparent",
-                  }}
-                  onMouseEnter={() => handleHover(`${id.slice(0, 3)}w${i + 1}`)}
-                  onMouseLeave={handleMouseLeave}
-                >
-                  <span style={{ color: data.weights[i] > 0 ? "blue" : "red" }}>
-                    {data.weights[i].toFixed(2)}
-                  </span>
-                </span>
-                {i < data.inputs.length - 1 && <span>+</span>}
-              </React.Fragment>
-            ))}
-            <span>{data.bias >= 0 ? " + " : " - "}</span>
-            <span
-              style={{
-                backgroundColor:
-                  highlightedId === `${id.slice(0, 3)}b`
-                    ? "#FCEA8F"
-                    : "transparent",
-              }}
-              onMouseEnter={() => handleHover(`${id.slice(0, 3)}b`)}
-              onMouseLeave={handleMouseLeave}
-            >
-              <span style={{ color: data.bias > 0 ? "blue" : "red" }}>
-                {Math.abs(data.bias).toFixed(2)}
+        <div
+          className={tw`absolute top-[-50px] left-[-130px] bg-white shadow-md border border-gray-300 p-2 rounded-md text-[12px] flex gap-1 cursor-pointer`}
+          style={{
+            visibility: toggleEquation && data.weights ? "visible" : "hidden",
+          }}
+        >
+          {data.inputs.map((input, i) => (
+            <React.Fragment key={i}>
+              <span
+                style={{
+                  backgroundColor:
+                    highlightedId === `i${i + 1}` ? "#FCEA8F" : "transparent",
+                }}
+                onMouseEnter={() => handleHover(`i${i + 1}`)}
+                onMouseLeave={handleMouseLeave}
+              >
+                <span style={{ color: "black" }}>{input.toFixed(2)}</span>
               </span>
+              <span>×</span>
+              <span
+                style={{
+                  backgroundColor:
+                    highlightedId === `${id.slice(0, 3)}w${i + 1}`
+                      ? "#FCEA8F"
+                      : "transparent",
+                }}
+                onMouseEnter={() => handleHover(`${id.slice(0, 3)}w${i + 1}`)}
+                onMouseLeave={handleMouseLeave}
+              >
+                <span style={{ color: data.weights[i] > 0 ? "blue" : "red" }}>
+                  {data.weights[i].toFixed(2)}
+                </span>
+              </span>
+              {i < data.inputs.length - 1 && <span>+</span>}
+            </React.Fragment>
+          ))}
+          <span>{data.bias >= 0 ? " + " : " - "}</span>
+          <span
+            style={{
+              backgroundColor:
+                highlightedId === `${id.slice(0, 3)}b`
+                  ? "#FCEA8F"
+                  : "transparent",
+            }}
+            onMouseEnter={() => handleHover(`${id.slice(0, 3)}b`)}
+            onMouseLeave={handleMouseLeave}
+          >
+            <span style={{ color: data.bias > 0 ? "blue" : "red" }}>
+              {Math.abs(data.bias).toFixed(2)}
             </span>
-            <span> = </span>
-            <span
-              style={{
-                backgroundColor:
-                  highlightedId === `${id.slice(0, 3)}s`
-                    ? "#FCEA8F"
-                    : "transparent",
-              }}
-              onMouseEnter={() => handleHover(`${id.slice(0, 3)}s`)}
-              onMouseLeave={handleMouseLeave}
-            >
-              <span style={{ color: "black" }}>{data.sum.toFixed(2)}</span>
-            </span>
-          </div>
-        )}
+          </span>
+          <span> = </span>
+          <span
+            style={{
+              backgroundColor:
+                highlightedId === `${id.slice(0, 3)}s`
+                  ? "#FCEA8F"
+                  : "transparent",
+            }}
+            onMouseEnter={() => handleHover(`${id.slice(0, 3)}s`)}
+            onMouseLeave={handleMouseLeave}
+          >
+            <span style={{ color: "black" }}>{data.sum.toFixed(2)}</span>
+          </span>
+        </div>
       </div>
     </MathJaxContext>
   );

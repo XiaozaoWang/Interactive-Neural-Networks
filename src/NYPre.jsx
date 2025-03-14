@@ -10,6 +10,8 @@ import InOut from "./flows/InOut";
 import SinglePredict from "./flows/SinglePredict";
 import Activation from "./flows/Activation";
 import SingleTrain from "./flows/SingleTrain";
+import OnlyInOut from "./flows/OnlyInOut";
+import OnlyPredict from "./flows/OnlyPredict";
 
 import dogImage from "./images/dogs.jpg";
 import frustration from "./images/frustration.png";
@@ -111,14 +113,34 @@ const NYPre = () => {
       </h1>
 
       {/* <p className={tw`text-sm text-center text-gray-800`}>Instructions:</p> */}
-      <p className={tw`text-sm text-center text-gray-800`}></p>
+      {/* <p className={tw`text-sm text-center text-gray-800`}></p> */}
 
       <div className={tw`flex justify-center items-center pb-10`}>
-        <SingleTrain />
+        <OnlyInOut />
       </div>
 
-      <div className={tw`flex justify-center items-center`}>
-        <Activation />
+      <div className={tw`flex justify-center items-center pb-10`}>
+        <OnlyPredict />
+      </div>
+
+      <QuestionAnswer
+        state={false}
+        question="Activation Functions?"
+        answer={
+          <>
+            <p>
+              Drag to change the inputs and see how different activation
+              functions perform!
+            </p>
+            <div className={tw`flex justify-center items-center`}>
+              <Activation />
+            </div>
+          </>
+        }
+      />
+
+      <div className={tw`flex justify-center items-center py-10`}>
+        <SingleTrain />
       </div>
 
       <h1

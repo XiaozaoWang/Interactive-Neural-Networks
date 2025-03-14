@@ -43,6 +43,8 @@ const edgeTypes = {
 };
 
 const SinglePredict = ({}) => {
+  const datumX = 100;
+  const datumY = 50;
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
@@ -72,8 +74,8 @@ const SinglePredict = ({}) => {
           draggable: true,
         },
         position: {
-          x: 100,
-          y: 100,
+          x: datumX,
+          y: datumY,
         },
         type: "SliderNode",
         draggable: false,
@@ -88,8 +90,8 @@ const SinglePredict = ({}) => {
           draggable: false,
         },
         position: {
-          x: 200,
-          y: 100,
+          x: datumX + 100,
+          y: datumY,
         },
         type: "GraphNode",
         draggable: false,
@@ -101,8 +103,8 @@ const SinglePredict = ({}) => {
           text: "Prediction",
         },
         position: {
-          x: 400,
-          y: 100,
+          x: datumX + 300,
+          y: datumY,
         },
         type: "SliderNode",
         draggable: false,
@@ -116,8 +118,8 @@ const SinglePredict = ({}) => {
           draggable: true,
         },
         position: {
-          x: 100,
-          y: 300,
+          x: datumX,
+          y: datumY + 200,
         },
         type: "SliderNode",
         draggable: false,
@@ -132,8 +134,8 @@ const SinglePredict = ({}) => {
           draggable: false,
         },
         position: {
-          x: 200,
-          y: 300,
+          x: datumX + 100,
+          y: datumY + 200,
         },
         type: "GraphNode",
         draggable: false,
@@ -145,8 +147,8 @@ const SinglePredict = ({}) => {
           text: "Prediction",
         },
         position: {
-          x: 400,
-          y: 300,
+          x: datumX + 300,
+          y: datumY + 200,
         },
         type: "SliderNode",
         draggable: false,
@@ -164,6 +166,18 @@ const SinglePredict = ({}) => {
         id: "edge2",
         source: "activation1",
         target: "prediction1",
+        animated: true,
+      },
+      {
+        id: "edge3",
+        source: "input2",
+        target: "activation2",
+        animated: true,
+      },
+      {
+        id: "edge4",
+        source: "activation2",
+        target: "prediction2",
         animated: true,
       },
     ];
@@ -224,7 +238,7 @@ const SinglePredict = ({}) => {
   return (
     <>
       <ReactFlowProvider>
-        <div style={{ height: "600px", width: "1250px" }}>
+        <div style={{ height: "450px", width: "1250px" }}>
           <ReactFlow
             nodes={nodes}
             edges={edges}
