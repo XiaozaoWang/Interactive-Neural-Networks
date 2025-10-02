@@ -1,5 +1,7 @@
 # Interactive Neural Networks
 
+hihihihihi
+
 ## Overview
 
 This project aims to contribute to the principles of "Explainable AI," emphasizing the importance of explainability and interpretability of machine learning models beyond mere accuracy. The objective of this project is to build an interactive demonstration of a well-known machine learning model, such as a neural network, that unveils its internal workings and allows viewers to modify the parameters. This will facilitate artists in gaining a better understanding of how everything works inside the "blackbox" and unlock their creative potential within their own ml5 projects.
