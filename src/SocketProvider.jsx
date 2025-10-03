@@ -6,7 +6,6 @@ const SocketContext = createContext(null);
 
 export const SocketProvider = ({ children }) => {
   const socket = useMemo(() => {
-    // 改成你 server 的地址
     return io("http://localhost:4000", { transports: ["websocket"] });
   }, []);
 

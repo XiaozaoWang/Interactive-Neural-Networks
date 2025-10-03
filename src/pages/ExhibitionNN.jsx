@@ -1,3 +1,4 @@
+// src/pages/Page2.jsx
 import React, { useEffect, useState, useCallback } from "react";
 import {
   ReactFlow,
@@ -13,8 +14,6 @@ import {
 import "@xyflow/react/dist/style.css";
 import { mean_squared_error, MLP, Value } from "../micrograd.js";
 import { tw } from "twind";
-
-import InputField from "../components/InputField.jsx";
 
 import DragNode from "../components/DragNode.jsx";
 import SliderNode from "../components/SliderNode.jsx";
@@ -33,10 +32,9 @@ import LrNode from "../components/LrNode.jsx";
 import ParamEdge from "../components/ParamEdge.jsx";
 import NormalEdge from "../components/NormalEdge.jsx";
 
-import { drag, map, text } from "d3";
+import { useSocket } from "../SocketProvider.jsx";
 
 const nodeTypes = {
-  InputField: InputField,
   DragNode: DragNode,
   SliderNode: SliderNode,
   BlackBox: BlackBox,
@@ -55,36 +53,22 @@ const edgeTypes = {
   NormalEdge: NormalEdge,
 };
 
-export default function OnlyPredict() {
+export default function ExhibitionNN() {
   const datumX = 100;
   const datumY = 50;
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+
+  const socket = useSocket();
 
   const onConnect = useCallback(
     (connection) => setEdges((eds) => addEdge(connection, eds)),
     [setEdges]
   );
 
-  const [inputs, setInputs] = useState([
-    [0.8, -0.9],
-    [0.9, -0.7],
-    [0.95, -0.9],
-    [0.7, -0.7],
-    [1.0, -0.5],
-    [0.4, -0.8],
-    [-0.6, 0.7],
-    [-0.9, 0.9],
-    [-0.8, 0.8],
-    [-0.9, 0.65],
-    [-0.6, 0.5],
-    [-0.4, 0.9],
-  ]);
-
-  const [targets, setTargets] = useState([
-    1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1,
-  ]);
   const [selectedData, setSelectedData] = useState(0);
+  const [inputs, setInputs] = useState([0, 0]); // Will be updated from Page 1
+  const [target, setTarget] = useState(1); // Will be updated from Page 1
   const [comingData, setComingData] = useState(null);
   const [comingIdx, setComingIdx] = useState(null);
   const [glowingEle, setGlowingEle] = useState([]);
@@ -108,34 +92,35 @@ export default function OnlyPredict() {
       }
       mapArray.push(row);
     }
-    // console.log("mapArray:", mapArray);
     return mapArray;
   }
-  const [mapPredictions, setMapPredictions] = useState([[]]); // Ensure it's a 2D array!
+  const [mapPredictions, setMapPredictions] = useState([[]]);
 
   // backend neural network
   const [inOutNN, setInOutNN] = useState(new MLP(2, [1]));
-  const [prediction, setPrediction] = useState(-1); // plain numbers
+  const [prediction, setPrediction] = useState(-1);
   const [loss, setLoss] = useState(new Value(0));
   const [nnData, setNnData] = useState([]);
   const [prevNNData, setPrevNNData] = useState(null);
   const weightStep = 0.1;
 
-  const handleFeed = (selected) => {
-    // console.log("selected:", selected);
-    // console.log("inputs:", inputs[selected]);
-    // console.log("nnData1:", nnData);
-    const pred = inOutNN.forward(inputs[selected]);
-    // console.log("prediction:", pred.data);
+  const handleFeed = (inputData, targetValue) => {
+    const pred = inOutNN.forward(inputData);
     setPrediction(pred.data.toFixed(2));
-    const target = targets[selected];
-    // console.log("target:", target);
-    // turn pred and target into arrays
+
     const predArr = [pred];
-    const targetArr = [target];
+    const targetArr = [targetValue];
     const loss = mean_squared_error(targetArr, predArr);
-    // console.log("loss:", loss.data);
     setLoss(loss);
+
+    // Send prediction to Page 3
+    if (socket) {
+      socket.emit("page2ToPage3", {
+        prediction: pred.data.toFixed(2),
+        target: targetValue,
+        inputData: inputData,
+      });
+    }
 
     // update the prediction map
     const mapPred = mapArray.map((row) =>
@@ -144,41 +129,55 @@ export default function OnlyPredict() {
         return pred.data.toFixed(1);
       })
     );
-    // console.log("mapPred:", mapPred);
     setMapPredictions(mapPred);
   };
 
   const handleStep = () => {
     setPrevNNData(nnData);
-    handleFeed(selectedData); // sets a new Loss Value every time to prevent error in gradient update
-    // zero out grads
+    handleFeed(inputs, target);
+
     for (let p of inOutNN.parameters()) {
       p.grad = 0.0;
     }
     loss.backward();
+
     for (let p of inOutNN.parameters()) {
       p.data += -1 * p.grad * 0.05;
     }
 
-    setNnData(updateNodeData()); // [!] every time nnData is reset using "setNnData", the child components that takes in nnData will re-render
-    console.log("nnData2:", nnData);
+    setNnData(updateNodeData());
   };
 
   const handleTrain = () => {
-    // for (let i = 0; i < 10; i++) {
-    //   handleStep();
-    // }
+    // Training logic here if needed
   };
 
-  // initialization: Set the initial node data, feed and predict the default data point
+  // Listen for data from Page 1
+  useEffect(() => {
+    if (socket) {
+      socket.on("page1ToPage2", (data) => {
+        setSelectedData(data.selectedIndex);
+        setInputs(data.inputData);
+        setTarget(data.targetData);
+        handleFeed(data.inputData, data.targetData);
+      });
+
+      // Request initial data from Page 1
+      socket.emit("page2RequestData");
+
+      return () => {
+        socket.off("page1ToPage2");
+      };
+    }
+  }, [socket]);
+
+  // Initialization
   useEffect(() => {
     setNnData(updateNodeData());
-    handleFeed(selectedData);
+    handleFeed(inputs, target);
   }, []);
 
   function updateNodeData() {
-    // merge the w and b gradients into a single array
-
     const layers = inOutNN.layers.map((layer) =>
       layer.neurons.map((neuron) => ({
         weights: neuron.w.map((w) => w.data),
@@ -189,34 +188,16 @@ export default function OnlyPredict() {
       }))
     );
     const updatedData = { size: inOutNN.sz, layers: layers };
-    // console.log("updatedData: ", updatedData);
     return updatedData;
   }
 
-  // re-render nodes and edges
+  // Update nodes and edges when data changes
   useEffect(() => {
     const newNodes = [
       {
-        id: "inputfield",
-        data: {
-          inputs: inputs,
-          targets: targets,
-          selectedData: selectedData,
-          onSelect: onSelect,
-          mapUnits: mapUnits,
-          mapPredictions: mapPredictions,
-        },
-        position: {
-          x: datumX,
-          y: datumY,
-        },
-        type: "InputField",
-        draggable: false,
-      },
-      {
         id: "i1",
         data: {
-          value: inputs[selectedData][0], // Change based on selectedData
+          value: inputs[0],
           selectedData: selectedData,
           glowingEle: glowingEle,
           onValueChange: onValueChange,
@@ -233,7 +214,7 @@ export default function OnlyPredict() {
       {
         id: "i2",
         data: {
-          value: inputs[selectedData][1], // Change based on selectedData
+          value: inputs[1],
           selectedData: selectedData,
           glowingEle: glowingEle,
           onValueChange: onValueChange,
@@ -256,12 +237,11 @@ export default function OnlyPredict() {
         type: "BiasNode",
         draggable: false,
       },
-
       {
         id: "n11s",
         data: {
           sum: inOutNN.layers[0].neurons[0].sum.data,
-          inputs: inputs[selectedData],
+          inputs: inputs,
           weights: inOutNN.layers[0].neurons[0].w.map((w) => w.data),
           bias: inOutNN.layers[0].neurons[0].b.data,
           size: { w: 30, h: 130 },
@@ -296,8 +276,8 @@ export default function OnlyPredict() {
       {
         id: "prediction",
         data: {
-          value: Number(prediction), // Change based on selectedData
-          target: targets[selectedData],
+          value: Number(prediction),
+          target: target,
           onValueChange: onValueChange,
           glowingEle: glowingEle,
           text: "Prediction",
@@ -312,29 +292,17 @@ export default function OnlyPredict() {
       {
         id: "loss",
         data: {
-          value: loss.data / 2, // need fix
+          value: loss.data / 2,
           onValueChange: onValueChange,
           glowingEle: glowingEle,
           text: "Loss",
-          grayscale: 50, // doesn't look good
+          grayscale: 50,
         },
         position: {
           x: datumX + 950,
           y: datumY + 80,
         },
         type: "SliderNode",
-        draggable: false,
-      },
-      {
-        id: "face",
-        data: {
-          value: Math.abs(Number(prediction) - targets[selectedData]), // Change based on selectedData
-        },
-        position: {
-          x: datumX + 890,
-          y: datumY + 135,
-        },
-        type: "FaceNode",
         draggable: false,
       },
       {
@@ -365,7 +333,6 @@ export default function OnlyPredict() {
           isHovered: false,
           isClicked: false,
           glowingEle: glowingEle,
-          // onParamHover: onParamHover,
           onGradArrowClick: onGradArrowClick,
           clickedGrad: clickedGrad,
           showLabel: true,
@@ -384,7 +351,6 @@ export default function OnlyPredict() {
           isHovered: false,
           isClicked: false,
           glowingEle: glowingEle,
-          // onParamHover: onParamHover,
           onGradArrowClick: onGradArrowClick,
           clickedGrad: clickedGrad,
           showLabel: true,
@@ -403,7 +369,6 @@ export default function OnlyPredict() {
           isHovered: false,
           isClicked: false,
           glowingEle: glowingEle,
-          // onParamHover: onParamHover,
           onGradArrowClick: onGradArrowClick,
           clickedGrad: clickedGrad,
           showLabel: true,
@@ -434,11 +399,12 @@ export default function OnlyPredict() {
       },
     ];
 
-    setNodes(newNodes); // Set the new nodes to trigger re-render
+    setNodes(newNodes);
     setEdges(newEdges);
   }, [
     selectedData,
     inputs,
+    target,
     prediction,
     nnData,
     mapPredictions,
@@ -446,24 +412,7 @@ export default function OnlyPredict() {
     formulaOn,
     clickedGrad,
     loss,
-  ]); // Add dependencies
-
-  useEffect(() => {
-    const newInputs = [...inputs];
-    // console.log("newInputs:", newInputs);
-    // console.log("comingData:", comingData);
-    // console.log("comingIdx:", comingIdx);
-    newInputs[selectedData][comingIdx] = comingData;
-    setInputs(newInputs);
-  }, [comingData, comingIdx]);
-  // The most important thing I learned is:
-  //  1. Functions passed to child components have closures (solvable), d3.drag() has closures (can't be solved)
-  //  2. Therefore, the best way is to keep all the data management in the parent component, and leave the child components only for rendering (as dumb as possible!)
-
-  const onSelect = (idx) => {
-    setSelectedData(idx); // problem is here. This is not updating the selectedData right away (?)
-    handleFeed(idx);
-  };
+  ]);
 
   const onValueChange = (i, v) => {
     setComingData(v);
@@ -476,9 +425,6 @@ export default function OnlyPredict() {
 
   const onEdgeMouseEnter = (event, edge) => {
     const edgeId = edge.id;
-    // console.log("Mouse entered the edge", edgeId);
-
-    // Updates edge
     setEdges((prevElements) =>
       prevElements.map((element) =>
         element.id === edgeId
@@ -496,8 +442,6 @@ export default function OnlyPredict() {
 
   const onEdgeMouseLeave = (event, edge) => {
     const edgeId = edge.id;
-    // console.log("Mouse left the edge", edgeId);
-    // Updates edge
     setEdges((prevElements) =>
       prevElements.map((element) =>
         element.id === edgeId
@@ -513,25 +457,6 @@ export default function OnlyPredict() {
     );
   };
 
-  const onEdgeClick = (event, edge) => {
-    // setFormulaOn(!formulaOn);
-    // const edgeId = edge.id;
-    // // Updates edge
-    // setEdges((prevElements) =>
-    //   prevElements.map((element) =>
-    //     element.id === edgeId
-    //       ? {
-    //           ...element,
-    //           data: {
-    //             ...element.data,
-    //             isClicked: !element.data.isClicked,
-    //           },
-    //         }
-    //       : element
-    //   )
-    // );
-  };
-
   const onGradArrowClick = (id) => {
     console.log("grad clicked", id);
     setClickedGrad(id);
@@ -540,43 +465,35 @@ export default function OnlyPredict() {
   const onWeightIncrease = (id) => {
     let param;
     if (id.includes("w")) {
-      // weight
       param = inOutNN.layers[id[1] - 1].neurons[id[2] - 1].w[id[4] - 1];
     } else if (id.includes("b")) {
-      // bias
       param = inOutNN.layers[id[1] - 1].neurons[id[2] - 1].b;
     }
     param.data += weightStep;
-    // limit to [-1,1]
     if (param.data > 1) {
       param.data = 1;
     }
 
     setNnData(updateNodeData());
-    handleFeed(selectedData); // remember to update the prediction after changing the weights!
+    handleFeed(inputs, target);
   };
 
   const onWeightDecrease = (id) => {
     let param;
     if (id.includes("w")) {
-      // weight
       param = inOutNN.layers[id[1] - 1].neurons[id[2] - 1].w[id[4] - 1];
     } else if (id.includes("b")) {
-      // bias
       param = inOutNN.layers[id[1] - 1].neurons[id[2] - 1].b;
     }
     param.data -= weightStep;
-    // limit to [-1,1]
     if (param.data < -1) {
       param.data = -1;
     }
     setNnData(updateNodeData());
-    handleFeed(selectedData);
+    handleFeed(inputs, target);
   };
 
   const onParamHover = (id) => {
-    // console.log("onParamHover: ", id);
-
     if (id === "grad0") {
       setGlowingEle(["loss", "p-l", "prediction", "a-p", "n11a"]);
     } else if (id === "grad1") {
@@ -601,18 +518,12 @@ export default function OnlyPredict() {
             onEdgesChange={onEdgesChange}
             onEdgeMouseEnter={onEdgeMouseEnter}
             onEdgeMouseLeave={onEdgeMouseLeave}
-            onEdgeClick={onEdgeClick}
             onConnect={onConnect}
             panOnDrag={false}
             zoomOnScroll={false}
             zoomOnDoubleClick={false}
           >
-            {/* <Controls /> */}
-            <Background
-              bgColor="#fafafa"
-              variant={false}
-              // style={{ border: "1px solid lightgray" }}
-            />
+            <Background bgColor="#fafafa" variant={false} />
           </ReactFlow>
         </div>
       </ReactFlowProvider>

@@ -4,7 +4,8 @@
 
 1. Clone the repository
 2. npm install
-3. npm run dev
+3. nodemon server.js (backend)
+4. npm run dev (frontend)
 
 ## Overview
 
