@@ -1,5 +1,6 @@
 // src/pages/Page1.jsx
 import React, { useState, useEffect } from "react";
+import Draggable from "react-draggable";
 import { tw } from "twind";
 import { useSocket } from "../SocketProvider.jsx";
 
@@ -13,8 +14,9 @@ import slime from "../images/kiki-bouba/slime.png";
 import rock from "../images/kiki-bouba/rock.png";
 import rainbow from "../images/kiki-bouba/rainbow.png";
 import cloud from "../images/kiki-bouba/cloud.png";
+import kikiIcon from "../images/kiki-bouba/kikiIcon.jpg";
+import boubaIcon from "../images/kiki-bouba/boubaIcon.jpg";
 
-// Data points array with the new structure
 const dataPoints = [
   {
     name: "donut",
@@ -90,14 +92,10 @@ export default function Page1() {
   const [mapPredictions, setMapPredictions] = useState([[]]);
   const [searchInput, setSearchInput] = useState("");
 
-  // Convert class to target value (kiki: 1, bouba: -1)
-  const getTargetValue = (className) => {
-    return className === "kiki" ? 1 : -1;
-  };
+  const getTargetValue = (className) => (className === "kiki" ? -1 : 1);
 
   const onSelect = (idx) => {
     setSelectedData(idx);
-
     if (socket && currentDataPoints[idx]) {
       const dataPoint = currentDataPoints[idx];
       socket.emit("page1ToPage2", {
@@ -111,35 +109,46 @@ export default function Page1() {
 
   const handleAddDataPoint = () => {
     const name = searchInput.trim().toLowerCase();
-    // Find the data point in the array by name
     const dataPoint = dataPoints.find((dp) => dp.name.toLowerCase() === name);
 
-    if (
-      dataPoint &&
-      !currentDataPoints.find((dp) => dp.name === dataPoint.name)
-    ) {
-      setCurrentDataPoints((prev) => [...prev, dataPoint]);
-      setSearchInput("");
+    if (dataPoint) {
+      // Check if data point already exists in currentDataPoints
+      const existingIndex = currentDataPoints.findIndex(
+        (dp) => dp.name === dataPoint.name
+      );
 
-      // Auto-select the newly added data point
-      const newIndex = currentDataPoints.length;
-      setSelectedData(newIndex);
-
-      if (socket) {
-        socket.emit("page1ToPage2", {
-          selectedIndex: newIndex,
-          inputData: dataPoint.features,
-          targetData: getTargetValue(dataPoint.class),
-          dataPoint: dataPoint,
-        });
+      if (existingIndex >= 0) {
+        // Data point already exists - select the existing one
+        setSelectedData(existingIndex);
+        if (socket) {
+          socket.emit("page1ToPage2", {
+            selectedIndex: existingIndex,
+            inputData: dataPoint.features,
+            targetData: getTargetValue(dataPoint.class),
+            dataPoint: dataPoint,
+          });
+        }
+      } else {
+        // Data point doesn't exist - add it
+        setCurrentDataPoints((prev) => [...prev, dataPoint]);
+        const newIndex = currentDataPoints.length;
+        setSelectedData(newIndex);
+        if (socket) {
+          socket.emit("page1ToPage2", {
+            selectedIndex: newIndex,
+            inputData: dataPoint.features,
+            targetData: getTargetValue(dataPoint.class),
+            dataPoint: dataPoint,
+          });
+        }
       }
+      setSearchInput("");
     }
   };
 
   const handleReset = () => {
     setCurrentDataPoints([]);
     setSelectedData(null);
-
     if (socket) {
       socket.emit("page1ToPage2", {
         selectedIndex: null,
@@ -150,7 +159,6 @@ export default function Page1() {
     }
   };
 
-  // Listen for initialization request from Page 2
   useEffect(() => {
     if (socket) {
       socket.on("page2RequestData", () => {
@@ -164,78 +172,461 @@ export default function Page1() {
           });
         }
       });
-
-      return () => {
-        socket.off("page2RequestData");
-      };
+      return () => socket.off("page2RequestData");
     }
   }, [socket, selectedData, currentDataPoints]);
 
-  // Prepare inputs and targets for ExhiInputField component
   const inputs = currentDataPoints.map((dp) => dp.features);
   const targets = currentDataPoints.map((dp) => getTargetValue(dp.class));
-
-  // Get available names for display
   const availableNames = dataPoints.map((dp) => dp.name).join(", ");
 
+  const selectedPoint =
+    selectedData !== null && currentDataPoints[selectedData]
+      ? currentDataPoints[selectedData]
+      : null;
+
   return (
-    <div className={tw`w-full h-screen bg-transparent`}>
-      {/* Control Panel */}
+    <div className={tw`w-full h-screen flex flex-row bg-gray-50`}>
+      {/* ========== LEFT PANEL ========== */}
       <div
-        className={tw`absolute top-4 left-4 z-10 bg-white p-4 rounded-lg shadow-lg`}
+        className={tw`w-1/4 h-full bg-white border-r border-gray-200 p-6 flex flex-col`}
       >
-        <div className={tw`mb-4`}>
-          <label className={tw`block text-sm font-medium mb-2`}>
-            Add Data Point by Name:
-          </label>
-          <div className={tw`flex gap-2`}>
+        {/* Control Panel */}
+        <div
+          className={tw`bg-blue-50 rounded-xl shadow-sm border border-blue-100`}
+        >
+          <div className={tw`flex gap-2 mb-4`}>
             <input
               type="text"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               onKeyPress={(e) => e.key === "Enter" && handleAddDataPoint()}
               placeholder="Enter object name..."
-              className={tw`flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm`}
+              className={tw`flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
             />
             <button
               onClick={handleAddDataPoint}
-              className={tw`px-4 py-2 bg-blue-500 text-white rounded-md text-sm hover:bg-blue-600`}
+              className={tw`px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors`}
             >
-              Submit
+              Add
             </button>
           </div>
         </div>
 
-        <button
-          onClick={handleReset}
-          className={tw`w-full px-4 py-2 bg-red-500 text-white rounded-md text-sm hover:bg-red-600`}
-        >
-          Reset All
-        </button>
+        {/* Selected Profile */}
+        {selectedPoint ? (
+          <div
+            className={tw`flex-1 overflow-auto text-center bg-white rounded-xl p-6 shadow-sm border border-gray-100 mt-4`}
+          >
+            {/* <h2
+              className={tw`font-bold text-2xl text-gray-800 mb-4 capitalize`}
+            >
+              {selectedPoint.name}
+            </h2> */}
 
-        <div className={tw`mt-4 text-xs text-gray-600`}>
-          <p>Available names: {availableNames}</p>
-          <p className={tw`mt-2`}>Current points: {currentDataPoints.length}</p>
-          {selectedData !== null && (
-            <p>Selected: {currentDataPoints[selectedData]?.name}</p>
-          )}
+            {/* Image with conditional sizing */}
+            <div className={tw`mb-6 flex justify-center`}>
+              <img
+                src={selectedPoint.imgaddr}
+                alt={selectedPoint.name}
+                className={tw`${
+                  selectedPoint.class === "kiki" ? "w-1/2" : "w-full"
+                } max-w-xs mx-auto`}
+              />
+            </div>
+
+            {/* Class Mapping Visualization */}
+            <div className={tw`mb-6`}>
+              <div className={tw`flex justify-between items-center mb-2`}>
+                <span className={tw`text-lg font-bold text-gray-700`}>-1</span>
+                <span className={tw`text-lg font-bold text-gray-700`}>1</span>
+              </div>
+
+              <div
+                className={tw`w-full h-4 mb-3`}
+                style={{
+                  background:
+                    "linear-gradient(to right, #e1674cff 0%, #E1504C 15%, #9c4CE1 50%, #4C6EE1 75%, #4CC9E1 100%)",
+                }}
+              />
+
+              <div className={tw`flex justify-between items-start`}>
+                <div className={tw`flex flex-col items-center`}>
+                  <img
+                    src={kikiIcon}
+                    alt="kiki"
+                    className={tw`w-12 h-12 mb-1`}
+                  />
+                  <span className={tw`text-sm font-medium text-gray-700`}>
+                    kiki
+                  </span>
+                </div>
+                <div className={tw`flex flex-col items-center`}>
+                  <img
+                    src={boubaIcon}
+                    alt="bouba"
+                    className={tw`w-12 h-12 mb-1`}
+                  />
+                  <span className={tw`text-sm font-medium text-gray-700`}>
+                    bouba
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Class Information */}
+            <div
+              className={tw`bg-gray-50 rounded-lg p-4 border border-gray-200`}
+            >
+              <p className={tw`text-lg font-semibold text-gray-800 mb-2`}>
+                Class:{" "}
+                <span
+                  className={tw`${
+                    selectedPoint.class === "kiki"
+                      ? "text-red-600"
+                      : "text-blue-600"
+                  }`}
+                >
+                  {selectedPoint.class}
+                </span>
+              </p>
+              <p className={tw`text-sm text-gray-600`}>
+                Numeric value: {getTargetValue(selectedPoint.class)}
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div
+            className={tw`flex-1 flex flex-col items-center justify-center text-gray-400 italic bg-white rounded-xl p-6 shadow-sm border border-gray-100 mt-4`}
+          >
+            {/* <div className={tw`text-xl mb-4`}>No data point entered</div> */}
+            <div className={tw`text-sm text-center`}>
+              Try placing one object on the reader
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ========== CENTER VISUALIZATION ========== */}
+      <div className={tw`flex-1 flex items-center justify-center bg-gray-50`}>
+        <div className={tw`w-11/12 h-5/6`}>
+          <ExhiInputField
+            data={{
+              inputs: inputs,
+              targets: targets,
+              selectedData: selectedData !== null ? selectedData : -1,
+              onSelect: onSelect,
+              mapUnits: mapUnits,
+              mapPredictions: mapPredictions,
+              dataPoints: currentDataPoints,
+            }}
+          />
         </div>
       </div>
 
-      {/* ExhiInputField occupying full screen */}
-      <div className={tw`w-full h-full`}>
-        <ExhiInputField
-          data={{
-            inputs: inputs,
-            targets: targets,
-            selectedData: selectedData !== null ? selectedData : 0,
-            onSelect: onSelect,
-            mapUnits: mapUnits,
-            mapPredictions: mapPredictions,
-            dataPoints: currentDataPoints,
-          }}
-        />
+      {/* ========== RIGHT FEATURE OUTPUTS ========== */}
+      <div
+        className={tw`w-1/5 h-full flex flex-col justify-center items-center pr-8 space-y-20`}
+      >
+        <div className={tw`text-center`}>
+          <div className={tw`text-lg font-semibold text-gray-600 mb-2`}>
+            Color
+          </div>
+          <div className={tw`text-6xl font-bold text-gray-800`}>
+            {selectedPoint ? selectedPoint.features[0].toFixed(2) : "--"}
+          </div>
+        </div>
+        <div className={tw`text-center`}>
+          <div className={tw`text-lg font-semibold text-gray-600 mb-2`}>
+            Size
+          </div>
+          <div className={tw`text-6xl font-bold text-gray-800`}>
+            {selectedPoint ? selectedPoint.features[1].toFixed(2) : "--"}
+          </div>
+        </div>
       </div>
     </div>
   );
 }
+
+// // src/pages/Page1.jsx
+// import React, { useState, useEffect } from "react";
+// import Draggable from "react-draggable";
+// import { tw } from "twind";
+// import { useSocket } from "../SocketProvider.jsx";
+
+// import ExhiInputField from "../components/ExhiInputField.jsx";
+// import donut from "../images/kiki-bouba/donut.png";
+// import cube from "../images/kiki-bouba/cube.png";
+// import mop from "../images/kiki-bouba/mop.png";
+// import sausage from "../images/kiki-bouba/sausage.png";
+// import ghost from "../images/kiki-bouba/ghost.png";
+// import slime from "../images/kiki-bouba/slime.png";
+// import rock from "../images/kiki-bouba/rock.png";
+// import rainbow from "../images/kiki-bouba/rainbow.png";
+// import cloud from "../images/kiki-bouba/cloud.png";
+
+// const dataPoints = [
+//   {
+//     name: "donut",
+//     uid: "04 BD 3E 38 C8 2A 81",
+//     features: [-0.8, -0.95],
+//     class: "kiki",
+//     imgaddr: donut,
+//   },
+//   {
+//     name: "cube",
+//     uid: "04 E4 4A 38 C8 2A 81",
+//     features: [-0.95, -0.75],
+//     class: "kiki",
+//     imgaddr: cube,
+//   },
+//   {
+//     name: "mop",
+//     uid: "04 8E 4A 38 C8 2A 81",
+//     features: [-0.9, -0.85],
+//     class: "kiki",
+//     imgaddr: mop,
+//   },
+//   {
+//     name: "sausage",
+//     uid: "04 1D 4A 38 C8 2A 81",
+//     features: [-0.8, -0.7],
+//     class: "kiki",
+//     imgaddr: sausage,
+//   },
+//   {
+//     name: "ghost",
+//     uid: "04 3A 4A 38 C8 2A 81",
+//     features: [-0.7, -0.7],
+//     class: "kiki",
+//     imgaddr: ghost,
+//   },
+//   {
+//     name: "slime",
+//     uid: "04 E4 4A 38 C8 2A 81",
+//     features: [0.95, 0.7],
+//     class: "bouba",
+//     imgaddr: slime,
+//   },
+//   {
+//     name: "rock",
+//     uid: "04 6C 4A 38 C8 2A 81",
+//     features: [0.7, 0.95],
+//     class: "bouba",
+//     imgaddr: rock,
+//   },
+//   {
+//     name: "rainbow",
+//     uid: "04 7D 4A 38 C8 2A 81",
+//     features: [0.9, 0.8],
+//     class: "bouba",
+//     imgaddr: rainbow,
+//   },
+//   {
+//     name: "cloud",
+//     uid: "04 9E 4A 38 C8 2A 81",
+//     features: [0.85, 0.9],
+//     class: "bouba",
+//     imgaddr: cloud,
+//   },
+// ];
+
+// export default function Page1() {
+//   const socket = useSocket();
+
+//   const [currentDataPoints, setCurrentDataPoints] = useState([]);
+//   const [selectedData, setSelectedData] = useState(null);
+//   const [mapUnits, setMapUnits] = useState(20);
+//   const [mapPredictions, setMapPredictions] = useState([[]]);
+//   const [searchInput, setSearchInput] = useState("");
+
+//   const getTargetValue = (className) => (className === "kiki" ? 1 : -1);
+
+//   const onSelect = (idx) => {
+//     setSelectedData(idx);
+//     if (socket && currentDataPoints[idx]) {
+//       const dataPoint = currentDataPoints[idx];
+//       socket.emit("page1ToPage2", {
+//         selectedIndex: idx,
+//         inputData: dataPoint.features,
+//         targetData: getTargetValue(dataPoint.class),
+//         dataPoint: dataPoint,
+//       });
+//     }
+//   };
+
+//   const handleAddDataPoint = () => {
+//     const name = searchInput.trim().toLowerCase();
+//     const dataPoint = dataPoints.find((dp) => dp.name.toLowerCase() === name);
+//     if (
+//       dataPoint &&
+//       !currentDataPoints.find((dp) => dp.name === dataPoint.name)
+//     ) {
+//       setCurrentDataPoints((prev) => [...prev, dataPoint]);
+//       setSearchInput("");
+//       const newIndex = currentDataPoints.length;
+//       setSelectedData(newIndex);
+//       if (socket) {
+//         socket.emit("page1ToPage2", {
+//           selectedIndex: newIndex,
+//           inputData: dataPoint.features,
+//           targetData: getTargetValue(dataPoint.class),
+//           dataPoint: dataPoint,
+//         });
+//       }
+//     }
+//   };
+
+//   const handleReset = () => {
+//     setCurrentDataPoints([]);
+//     setSelectedData(null);
+//     if (socket) {
+//       socket.emit("page1ToPage2", {
+//         selectedIndex: null,
+//         inputData: [0, 0],
+//         targetData: 1,
+//         dataPoint: null,
+//       });
+//     }
+//   };
+
+//   useEffect(() => {
+//     if (socket) {
+//       socket.on("page2RequestData", () => {
+//         if (selectedData !== null && currentDataPoints[selectedData]) {
+//           const dataPoint = currentDataPoints[selectedData];
+//           socket.emit("page1ToPage2", {
+//             selectedIndex: selectedData,
+//             inputData: dataPoint.features,
+//             targetData: getTargetValue(dataPoint.class),
+//             dataPoint: dataPoint,
+//           });
+//         }
+//       });
+//       return () => socket.off("page2RequestData");
+//     }
+//   }, [socket, selectedData, currentDataPoints]);
+
+//   const inputs = currentDataPoints.map((dp) => dp.features);
+//   const targets = currentDataPoints.map((dp) => getTargetValue(dp.class));
+//   const availableNames = dataPoints.map((dp) => dp.name).join(", ");
+
+//   const selectedPoint =
+//     selectedData !== null && currentDataPoints[selectedData]
+//       ? currentDataPoints[selectedData]
+//       : null;
+
+//   return (
+//     <div className={tw`w-full h-screen flex flex-row bg-gray-50`}>
+//       {/* ========== LEFT PANEL ========== */}
+//       <div
+//         className={tw`w-1/4 h-full bg-white border-r border-gray-200 p-4 flex flex-col`}
+//       >
+//         {/* Control Panel */}
+//         <div className={tw`bg-gray-100 p-4 rounded-lg shadow mb-6`}>
+//           <label className={tw`block text-sm font-medium mb-2`}>
+//             Add Data Point by Name:
+//           </label>
+//           <div className={tw`flex gap-2`}>
+//             <input
+//               type="text"
+//               value={searchInput}
+//               onChange={(e) => setSearchInput(e.target.value)}
+//               onKeyPress={(e) => e.key === "Enter" && handleAddDataPoint()}
+//               placeholder="Enter object name..."
+//               className={tw`flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm`}
+//             />
+//             <button
+//               onClick={handleAddDataPoint}
+//               className={tw`px-4 py-2 bg-blue-500 text-white rounded-md text-sm hover:bg-blue-600`}
+//             >
+//               Submit
+//             </button>
+//           </div>
+//           <button
+//             onClick={handleReset}
+//             className={tw`w-full mt-3 px-4 py-2 bg-red-500 text-white rounded-md text-sm hover:bg-red-600`}
+//           >
+//             Reset All
+//           </button>
+
+//           <div className={tw`mt-3 text-xs text-gray-600`}>
+//             <p>Available names: {availableNames}</p>
+//             <p className={tw`mt-1`}>
+//               Current points: {currentDataPoints.length}
+//             </p>
+//             {selectedData !== null && (
+//               <p>Selected: {currentDataPoints[selectedData]?.name}</p>
+//             )}
+//           </div>
+//         </div>
+
+//         {/* Selected Profile */}
+//         {selectedPoint ? (
+//           <div className={tw`flex-1 overflow-auto text-center`}>
+//             <h2 className={tw`font-bold text-xl mb-2`}>{selectedPoint.name}</h2>
+//             <img
+//               src={selectedPoint.imgaddr}
+//               alt={selectedPoint.name}
+//               // className={tw`w-3/4 mx-auto mb-4 rounded-lg shadow-md`}
+//             />
+//             <div
+//               className={tw`text-sm text-gray-700 text-left mx-auto max-w-xs`}
+//             >
+//               <p>
+//                 <strong>Class:</strong> {selectedPoint.class}
+//               </p>
+//               <p>
+//                 <strong>UID:</strong> {selectedPoint.uid}
+//               </p>
+//               <p>
+//                 <strong>Feature 1:</strong>{" "}
+//                 {selectedPoint.features[0].toFixed(2)}
+//               </p>
+//               <p>
+//                 <strong>Feature 2:</strong>{" "}
+//                 {selectedPoint.features[1].toFixed(2)}
+//               </p>
+//             </div>
+//           </div>
+//         ) : (
+//           <div
+//             className={tw`flex-1 flex items-center justify-center text-gray-400 italic`}
+//           >
+//             Select or add a data point
+//           </div>
+//         )}
+//       </div>
+
+//       {/* ========== CENTER VISUALIZATION ========== */}
+//       <div className={tw`flex-1 flex items-center justify-center`}>
+//         <div className={tw`w-11/12 h-5/6`}>
+//           <ExhiInputField
+//             data={{
+//               inputs: inputs,
+//               targets: targets,
+//               selectedData: selectedData !== null ? selectedData : 0,
+//               onSelect: onSelect,
+//               mapUnits: mapUnits,
+//               mapPredictions: mapPredictions,
+//               dataPoints: currentDataPoints,
+//             }}
+//           />
+//         </div>
+//       </div>
+
+//       {/* ========== RIGHT FEATURE OUTPUTS ========== */}
+//       <div
+//         className={tw`w-1/5 h-full flex flex-col justify-between items-end pr-8`}
+//       >
+//         <div className={tw`text-5xl font-bold text-gray-800`}>
+//           {selectedPoint ? selectedPoint.features[0].toFixed(2) : "--"}
+//         </div>
+//         <div className={tw`text-5xl font-bold text-gray-800 mb-8`}>
+//           {selectedPoint ? selectedPoint.features[1].toFixed(2) : "--"}
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
