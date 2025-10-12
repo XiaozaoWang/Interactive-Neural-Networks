@@ -84,7 +84,7 @@ void checkSlider(int sliderId) {
   int currentValue = analogRead(sliderPins[sliderId]);
   
   // Only send if value changed significantly (to avoid noise)
-  if (abs(currentValue - lastSliderValues[sliderId]) > 10) {
+  if (abs(currentValue - lastSliderValues[sliderId]) > 30) {
     lastSliderValues[sliderId] = currentValue;
     
     // Send JSON message with slider ID and value

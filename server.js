@@ -16,11 +16,28 @@ const server = http.createServer(app);
 // });
 
 // 修改 Socket.IO 配置，允许局域网连接
+// const io = new Server(server, {
+//   cors: {
+//     origin: ["http://localhost:5173", "http://10.209.78.97:5173"], // 添加你的IP
+//     methods: ["GET", "POST"],
+//   },
+// });
+
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:5173", "http://10.209.78.97:5173"], // 添加你的IP
+    origin: "*", // 临时设置为 * 进行测试
     methods: ["GET", "POST"],
+    credentials: false,
   },
+  // 添加这些配置以改善兼容性
+  allowEIO3: true, // 允许 Engine.IO v3 客户端
+  connectionStateRecovery: {
+    // 启用连接状态恢复
+    maxDisconnectionDuration: 2 * 60 * 1000,
+    skipMiddlewares: true,
+  },
+  // 强制使用所有可用传输
+  transports: ["websocket", "polling"],
 });
 
 const PORT = process.env.PORT || 4000;
@@ -177,10 +194,9 @@ if (process.env.NODE_ENV === "production") {
 
 // 修改服务器监听配置
 server.listen(PORT, "0.0.0.0", () => {
-  // 添加 '0.0.0.0'
-  console.log(`Server listening on http://0.0.0.0:${PORT}`);
-  console.log(`Local: http://localhost:${PORT}`);
-  console.log(`Network: http://10.209.78.97:${PORT}`);
+  console.log(`🚀 Server is running on port ${PORT}`);
+  console.log(`📍 Local: http://localhost:${PORT}`);
+  console.log(`🌐 Network: http://10.209.78.97:${PORT}`);
 });
 
 // // server.js (updated)

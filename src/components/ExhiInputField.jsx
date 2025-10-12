@@ -44,15 +44,22 @@ const ExhiInputField = ({ data }) => {
     const svg = d3.select(svgRef.current).attr("cursor", "pointer");
     svg.selectAll("*").remove();
 
-    // Calculate margins based on screen size
+    // Calculate margins and make the plot area a perfect square
+    const baseMargin = Math.min(dimensions.width, dimensions.height) * 0.15;
     const margin = {
-      top: dimensions.height * 0.05,
-      bottom: dimensions.height * 0.15,
-      left: dimensions.width * 0.1,
-      right: dimensions.width * 0.1,
+      top: baseMargin * 0.5,
+      bottom: baseMargin,
+      left: baseMargin,
+      right: baseMargin * 0.5,
     };
-    const width = dimensions.width - margin.left - margin.right;
-    const height = dimensions.height - margin.top - margin.bottom;
+
+    // Make the plot area a perfect square
+    const plotSize = Math.min(
+      dimensions.width - margin.left - margin.right,
+      dimensions.height - margin.top - margin.bottom
+    );
+    const width = plotSize;
+    const height = plotSize;
 
     // Adjust image size based on screen size
     const baseImgSize = Math.min(width, height) * 0.08;
@@ -68,17 +75,28 @@ const ExhiInputField = ({ data }) => {
     const xScale = d3.scaleLinear().domain([-1, 1]).range([0, width]);
     const yScale = d3.scaleLinear().domain([-1, 1]).range([height, 0]);
 
-    // Create axes with larger font size
-    const xAxis = d3.axisBottom(xScale).ticks(5).tickSize(3);
-    const yAxis = d3.axisLeft(yScale).ticks(5).tickSize(3).tickPadding(2);
+    // Add a subtle background for the data field
+    graph
+      .append("rect")
+      .attr("x", 0)
+      .attr("y", 0)
+      .attr("width", width)
+      .attr("height", height)
+      .attr("fill", "#f8fafc")
+      .attr("rx", 4)
+      .attr("ry", 4);
+
+    // Create axes with reduced tick size to prevent overlap
+    const xAxis = d3.axisBottom(xScale).ticks(5).tickSize(6).tickPadding(8);
+    const yAxis = d3.axisLeft(yScale).ticks(5).tickSize(6).tickPadding(8);
 
     // Append axes
     graph.append("g").attr("transform", `translate(0,${height})`).call(xAxis);
     graph.append("g").call(yAxis);
 
     // Increase font size for axis labels and ticks
-    const labelFontSize = Math.min(20, width * 0.025);
-    const tickFontSize = Math.min(16, width * 0.02);
+    const labelFontSize = Math.min(18, plotSize * 0.04);
+    const tickFontSize = Math.min(14, plotSize * 0.03);
 
     // Style axes with larger font
     graph
@@ -119,24 +137,27 @@ const ExhiInputField = ({ data }) => {
       .attr("x2", "100%")
       .attr("y2", "0%");
 
-    gradient.append("stop").attr("offset", "0%").attr("stop-color", "red");
-
-    gradient.append("stop").attr("offset", "100%").attr("stop-color", "blue");
+    gradient.append("stop").attr("offset", "0%").attr("stop-color", "#E1504C");
+    gradient.append("stop").attr("offset", "50%").attr("stop-color", "#9C4CE1");
+    gradient
+      .append("stop")
+      .attr("offset", "100%")
+      .attr("stop-color", "#4CC9E1");
 
     graph
       .append("rect")
       .attr("x", 0)
-      .attr("y", height + margin.bottom * 0.3)
+      .attr("y", height + margin.bottom * 0.35)
       .attr("width", width)
-      .attr("height", 8)
+      .attr("height", 10)
       .attr("fill", `url(#${gradientId})`)
-      .attr("rx", 4)
-      .attr("ry", 4);
+      .attr("rx", 5)
+      .attr("ry", 5);
 
-    // Add size circles to the left of Y-axis (Size axis)
+    // Add size circles to the left of Y-axis (Size axis) with better spacing
     const sizeCircles = [-1, -0.5, 0, 0.5, 1];
-    const maxCircleSize = 20;
-    const minCircleSize = 5;
+    const maxCircleSize = Math.min(18, plotSize * 0.025);
+    const minCircleSize = Math.min(4, plotSize * 0.01);
 
     sizeCircles.forEach((value) => {
       const circleSize = d3
@@ -146,7 +167,7 @@ const ExhiInputField = ({ data }) => {
 
       graph
         .append("circle")
-        .attr("cx", -margin.left * 0.4)
+        .attr("cx", -margin.left * 0.5)
         .attr("cy", yScale(value))
         .attr("r", circleSize)
         .attr("fill", "none")
@@ -185,16 +206,16 @@ const ExhiInputField = ({ data }) => {
       .style("visibility", "hidden")
       .style("background", "white")
       .style("border", "1px solid #D1D5DB")
-      .style("border-radius", "8px")
-      .style("padding", "12px")
-      .style("font-size", "14px")
+      .style("border-radius", "6px")
+      .style("padding", "8px")
+      .style("font-size", "12px")
       .style(
         "box-shadow",
         "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
       )
       .style("pointer-events", "none")
       .style("z-index", "1000")
-      .style("min-width", "160px");
+      .style("max-width", "140px");
 
     // Create a persistent tooltip group for the selected point
     const persistentTooltipGroup = graph
@@ -231,8 +252,10 @@ const ExhiInputField = ({ data }) => {
             .style("visibility", "visible")
             .html(
               `
-              <div class="font-semibold text-gray-800">${d.name}</div>
-              <div class="text-sm text-gray-600 mt-1">
+              <div style="font-weight: 600; color: #1F2937; font-size: 11px;">${
+                d.name
+              }</div>
+              <div style="font-size: 10px; color: #6B7280; margin-top: 2px;">
                 <div><strong>Class:</strong> ${d.class}</div>
                 <div><strong>Color:</strong> ${d.features[0].toFixed(2)}</div>
                 <div><strong>Size:</strong> ${d.features[1].toFixed(2)}</div>
@@ -272,46 +295,38 @@ const ExhiInputField = ({ data }) => {
         // Clear previous persistent tooltip
         persistentTooltipGroup.selectAll("*").remove();
 
-        // Add background for tooltip
+        // Add background for tooltip with smaller size
+        const tooltipWidth = 120;
+        const tooltipHeight = 45;
         const tooltipBg = persistentTooltipGroup
           .append("rect")
-          .attr("x", xPos - 80)
-          .attr("y", yPos - 70)
-          .attr("width", 160)
-          .attr("height", 60)
+          .attr("x", xPos - tooltipWidth / 2)
+          .attr("y", yPos - tooltipHeight - 15)
+          .attr("width", tooltipWidth)
+          .attr("height", tooltipHeight)
           .attr("fill", "white")
           .attr("stroke", "#3B82F6")
-          .attr("stroke-width", 2)
-          .attr("rx", 8)
-          .attr("ry", 8)
-          .style("filter", "drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1))");
+          .attr("stroke-width", 1.5)
+          .attr("rx", 6)
+          .attr("ry", 6)
+          .style("filter", "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))");
 
-        // Add tooltip text
-        // persistentTooltipGroup
-        //   .append("text")
-        //   .attr("x", xPos)
-        //   .attr("y", yPos - 50)
-        //   .attr("text-anchor", "middle")
-        //   .attr("font-size", "14px")
-        //   .attr("font-weight", "bold")
-        //   .attr("fill", "#1F2937")
-        //   .text(selectedPoint.name);
-
+        // Add tooltip text with smaller font sizes
         persistentTooltipGroup
           .append("text")
           .attr("x", xPos)
-          .attr("y", yPos - 30)
+          .attr("y", yPos - tooltipHeight - 15 + 18)
           .attr("text-anchor", "middle")
-          .attr("font-size", "12px")
+          .attr("font-size", "10px")
           .attr("fill", "#6B7280")
           .text(`Color: ${selectedPoint.features[0].toFixed(2)}`);
 
         persistentTooltipGroup
           .append("text")
           .attr("x", xPos)
-          .attr("y", yPos - 15)
+          .attr("y", yPos - tooltipHeight - 15 + 32)
           .attr("text-anchor", "middle")
-          .attr("font-size", "12px")
+          .attr("font-size", "10px")
           .attr("fill", "#6B7280")
           .text(`Size: ${selectedPoint.features[1].toFixed(2)}`);
       }
@@ -334,8 +349,10 @@ const ExhiInputField = ({ data }) => {
             .style("visibility", "visible")
             .html(
               `
-              <div class="font-semibold text-gray-800">${d.name}</div>
-              <div class="text-sm text-gray-600 mt-1">
+              <div style="font-weight: 600; color: #1F2937; font-size: 11px;">${
+                d.name
+              }</div>
+              <div style="font-size: 10px; color: #6B7280; margin-top: 2px;">
                 <div><strong>Class:</strong> ${d.class}</div>
                 <div><strong>Color:</strong> ${d.features[0].toFixed(2)}</div>
                 <div><strong>Size:</strong> ${d.features[1].toFixed(2)}</div>
@@ -396,24 +413,24 @@ const ExhiInputField = ({ data }) => {
         .attr("stroke-width", 2)
         .attr("stroke-dasharray", "4,4");
 
-      // Add coordinate labels at the axes
+      // Add coordinate labels at the axes with better positioning
       graph
         .append("text")
         .attr("x", xScale(selectedPoint.features[0]))
-        .attr("y", height + 25)
+        .attr("y", height + margin.bottom * 0.6)
         .attr("text-anchor", "middle")
-        .attr("font-size", "14px")
+        .attr("font-size", "12px")
         .attr("font-weight", "bold")
         .attr("fill", "#3B82F6")
         .text(selectedPoint.features[0].toFixed(2));
 
       graph
         .append("text")
-        .attr("x", -10)
+        .attr("x", -margin.left * 0.7)
         .attr("y", yScale(selectedPoint.features[1]))
-        .attr("text-anchor", "end")
+        .attr("text-anchor", "middle")
         .attr("dominant-baseline", "middle")
-        .attr("font-size", "14px")
+        .attr("font-size", "12px")
         .attr("font-weight", "bold")
         .attr("fill", "#3B82F6")
         .text(selectedPoint.features[1].toFixed(2));

@@ -19,13 +19,13 @@ createRoot(document.getElementById("root")).render(
   <StrictMode>
     <SocketProvider>
       <BrowserRouter>
-        <nav>
+        {/* <nav>
           <a href="/">Home</a> | <a href="/nypre">NYPre</a> |{" "}
           <a href="/test">Test</a> | <a href="/pageA">Page A</a> |{" "}
           <a href="/pageB">Page B</a>| <a href="/Input">Input</a> |{" "}
           <a href="/NN">NN</a> | <a href="/Output">Output</a> |{" "}
           <a href="/pageC">Page C</a>
-        </nav>
+        </nav> */}
         <hr />
         <Routes>
           <Route path="/" element={<App />} />

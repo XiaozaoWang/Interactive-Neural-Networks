@@ -104,7 +104,38 @@ export default function ExhibitionNN() {
   const [prevNNData, setPrevNNData] = useState(null);
   const weightStep = 0.1;
 
-  const handleFeed = (inputData, targetValue) => {
+  // const handleFeed = (inputData, targetValue) => {
+  //   const pred = inOutNN.forward(inputData);
+  //   setPrediction(pred.data.toFixed(2));
+
+  //   const predArr = [pred];
+  //   const targetArr = [targetValue];
+  //   const loss = mean_squared_error(targetArr, predArr);
+  //   setLoss(loss);
+
+  //   // Send prediction to Page 3
+  //   if (socket) {
+  //     socket.emit("page2ToPage3", {
+  //       prediction: pred.data.toFixed(2),
+  //       target: targetValue,
+  //       inputData: inputData,
+  //     });
+  //   }
+
+  //   // update the prediction map
+  //   const mapPred = mapArray.map((row) =>
+  //     row.map((point) => {
+  //       const pred = inOutNN.forward(point);
+  //       return pred.data.toFixed(1);
+  //     })
+  //   );
+  //   setMapPredictions(mapPred);
+  // };
+
+  let lastEmit = 0;
+  const emitInterval = 100; // 每100ms最多emit一次
+
+  function handleFeed(inputData, targetValue) {
     const pred = inOutNN.forward(inputData);
     setPrediction(pred.data.toFixed(2));
 
@@ -113,24 +144,16 @@ export default function ExhibitionNN() {
     const loss = mean_squared_error(targetArr, predArr);
     setLoss(loss);
 
-    // Send prediction to Page 3
-    if (socket) {
+    const now = Date.now();
+    if (socket && now - lastEmit > emitInterval) {
+      lastEmit = now;
       socket.emit("page2ToPage3", {
         prediction: pred.data.toFixed(2),
         target: targetValue,
         inputData: inputData,
       });
     }
-
-    // update the prediction map
-    const mapPred = mapArray.map((row) =>
-      row.map((point) => {
-        const pred = inOutNN.forward(point);
-        return pred.data.toFixed(1);
-      })
-    );
-    setMapPredictions(mapPred);
-  };
+  }
 
   // const handleStep = () => {
   //   setPrevNNData(nnData);
@@ -224,8 +247,8 @@ export default function ExhibitionNN() {
     const handleArduinoData = (data) => {
       if (data.type === "slider") {
         const { id, value } = data;
-        // map 0–680 → -1 to 1
-        const mapped = (value / 680) * 2 - 1;
+        // map 0–1024 → -1.5 to 1.5
+        const mapped = -((value / 1024) * 3 - 1.5);
 
         console.log(
           `🎚️ Slider ${id}: raw=${value} → mapped=${mapped.toFixed(2)}`
@@ -384,22 +407,22 @@ export default function ExhibitionNN() {
         type: "SliderNode",
         draggable: false,
       },
-      {
-        id: "loss",
-        data: {
-          value: loss.data / 2,
-          onValueChange: onValueChange,
-          glowingEle: glowingEle,
-          text: "Loss",
-          grayscale: 50,
-        },
-        position: {
-          x: datumX + 950,
-          y: datumY + 80,
-        },
-        type: "SliderNode",
-        draggable: false,
-      },
+      // {
+      //   id: "loss",
+      //   data: {
+      //     value: loss.data / 2,
+      //     onValueChange: onValueChange,
+      //     glowingEle: glowingEle,
+      //     text: "Loss",
+      //     grayscale: 50,
+      //   },
+      //   position: {
+      //     x: datumX + 950,
+      //     y: datumY + 80,
+      //   },
+      //   type: "SliderNode",
+      //   draggable: false,
+      // },
       {
         id: "formula",
         data: {
@@ -612,7 +635,7 @@ export default function ExhibitionNN() {
             marginBottom: "10px",
           }}
         >
-          <button
+          {/* <button
             onClick={handleStep}
             style={{
               padding: "8px 16px",
@@ -628,7 +651,7 @@ export default function ExhibitionNN() {
             onMouseOut={(e) => (e.target.style.backgroundColor = "#007bff")}
           >
             Train
-          </button>
+          </button> */}
         </div>
 
         <div style={{ width: "100%", height: "90vh" }}>

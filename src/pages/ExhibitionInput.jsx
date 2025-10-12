@@ -13,72 +13,80 @@ import slime from "../images/kiki-bouba/slime.png";
 import rock from "../images/kiki-bouba/rock.png";
 import rainbow from "../images/kiki-bouba/rainbow.png";
 import cloud from "../images/kiki-bouba/cloud.png";
+import grape from "../images/kiki-bouba/grape.png";
 import kikiIcon from "../images/kiki-bouba/kikiIcon.jpg";
 import boubaIcon from "../images/kiki-bouba/boubaIcon.jpg";
 
 const dataPoints = [
   {
     name: "donut",
-    uid: "04bd3e38c82a81",
+    uid: "04bb1a38c82a81",
     features: [-0.8, -0.95],
     class: "kiki",
     imgaddr: donut,
   },
   {
     name: "cube",
-    uid: "04e44a38c82a81",
+    uid: "04b91338c82a81",
     features: [-0.95, -0.75],
     class: "kiki",
     imgaddr: cube,
   },
   {
     name: "mop",
-    uid: "048e4a38c82a81",
+    uid: "04bf2138c82a81",
     features: [-0.9, -0.85],
     class: "kiki",
     imgaddr: mop,
   },
   {
     name: "sausage",
-    uid: "041d4a38c82a81",
+    uid: "04d33338c82a81",
     features: [-0.8, -0.7],
     class: "kiki",
     imgaddr: sausage,
   },
   {
     name: "ghost",
-    uid: "043a4a38c82a81",
+    uid: "04c72c38c82a81",
     features: [-0.7, -0.7],
     class: "kiki",
     imgaddr: ghost,
   },
   {
     name: "slime",
-    uid: "04e44a38c82a81",
+    uid: "0463eb37c82a81",
     features: [0.95, 0.7],
     class: "bouba",
     imgaddr: slime,
   },
   {
     name: "rock",
-    uid: "046c4a38c82a81",
+    uid: "0457e637c82a81",
     features: [0.7, 0.95],
     class: "bouba",
     imgaddr: rock,
   },
   {
     name: "rainbow",
-    uid: "047d4a38c82a81",
+    uid: "04f1f637c82a81",
     features: [0.9, 0.8],
     class: "bouba",
     imgaddr: rainbow,
   },
   {
     name: "cloud",
-    uid: "049e4a38c82a81",
+    uid: "04ccfc37c82a81",
     features: [0.85, 0.9],
     class: "bouba",
     imgaddr: cloud,
+  },
+  {
+    name: "grape",
+    uid: "0464e137c82a81",
+    features: [0, -0.2],
+    class: "?",
+    imgaddr: grape,
   },
 ];
 
@@ -142,11 +150,11 @@ export default function Page1() {
     <div className={tw`w-full h-screen flex flex-row bg-gray-50`}>
       {/* LEFT PANEL — Show scanned object info */}
       <div
-        className={tw`w-1/4 h-full bg-white border-r border-gray-200 p-6 flex flex-col`}
+        className={tw`w-1/3 h-full bg-white border-r border-gray-200 p-6 flex flex-col`}
       >
         {selectedPoint ? (
           <div
-            className={tw`flex-1 overflow-auto text-center bg-white rounded-xl p-6 shadow-sm border border-gray-100`}
+            className={tw`flex-1 overflow-auto text-center bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex flex-col justify-center`}
           >
             <div className={tw`mb-6 flex justify-center`}>
               <img
